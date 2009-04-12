@@ -53,7 +53,7 @@ wes_classify(matrix4_t *in)
         in->flags = WES_M_ROTATED;
     }
 
-    if (in->data[12] != 0 || in->data[13] != 0 || in->data[14] == 0){
+    if (in->data[12] != 0 || in->data[13] != 0 || in->data[14] != 0){
         in->flags |= WES_M_TRANSLATED;
     }
 }
