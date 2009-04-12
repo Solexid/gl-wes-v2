@@ -16,7 +16,7 @@
 #define WES_M_SCALED                0x02
 #define WES_M_ROTATED               0x04
 #define WES_M_TRANSLATED            0x08
-#define WES_M_DIRTY                 0x20
+#define WES_M_DIRTY                 0x10
 
 /* matrix structure                     */
 typedef struct matrix4_s matrix4_t;
