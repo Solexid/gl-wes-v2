@@ -1,6 +1,7 @@
 
 #include <math.h>
 #include <string.h>
+#include <stdio.h>
 #include "wes.h"
 #include "wes_matrix.h"
 
@@ -58,6 +59,8 @@ wes_classify(matrix4_t *in)
     }
 }
 
+
+
 GLvoid
 wes_transpose2(GLfloat *in, GLfloat *out)
 {
@@ -82,35 +85,6 @@ wes_transpose4(GLfloat *in, GLfloat *out)
     out[12] = in[3]; out[13] = in[7]; out[14] = in[11]; out[15] = in[15];
 }
 
-GLvoid
-wes_identity4(matrix4_t *m)
-{
-    m->flags = WES_M_IDENTITY;
-    m->data[1] = m->data[2] = m->data[3] = m->data[4] = 0.0;
-    m->data[6] = m->data[7] = m->data[8] = m->data[9] = 0.0;
-    m->data[11] = m->data[12] = m->data[13] = m->data[14] = 0.0;
-    m->data[0] = m->data[5] = m->data[10] = m->data[15] = 1.0;
-}
-
-GLvoid
-wes_mat4to3(GLfloat *in, GLfloat *out )
-{
-    out[0] = in[0]; out[3] = in[4]; out[6] = in[8];
-    out[1] = in[1]; out[4] = in[5]; out[7] = in[9];
-    out[2] = in[2]; out[5] = in[6]; out[8] = in[10];
-}
-
-GLvoid
-wes_mul4(matrix4_t *in0, matrix4_t *in1, matrix4_t *out)
-{
-    if (in0->flags == WES_M_IDENTITY){
-        *out = *in1;
-    } else if (in1->flags == WES_M_IDENTITY){
-        *out = *in0;
-    } else {
-        wes_mul4_general(in0->data, in1->data, out->data);
-    }
-}
 
 GLvoid
 normalize3(GLfloat *v)
@@ -150,6 +124,36 @@ wes_mul4_general(GLfloat *in0, GLfloat *in1, GLfloat *out)
 	out[13] = in0[12] * in1[1] + in0[13] * in1[5] + in0[14] * in1[9] + in0[15] * in1[13];
 	out[14] = in0[12] * in1[2] + in0[13] * in1[6] + in0[14] * in1[10] + in0[15] * in1[14];
 	out[15] = in0[12] * in1[3] + in0[13] * in1[7] + in0[14] * in1[11] + in0[15] * in1[15];
+}
+
+GLvoid
+wes_identity4(matrix4_t *m)
+{
+    m->flags = WES_M_IDENTITY;
+    m->data[1] = m->data[2] = m->data[3] = m->data[4] = 0.0;
+    m->data[6] = m->data[7] = m->data[8] = m->data[9] = 0.0;
+    m->data[11] = m->data[12] = m->data[13] = m->data[14] = 0.0;
+    m->data[0] = m->data[5] = m->data[10] = m->data[15] = 1.0;
+}
+
+GLvoid
+wes_mat4to3(GLfloat *in, GLfloat *out )
+{
+    out[0] = in[0]; out[3] = in[4]; out[6] = in[8];
+    out[1] = in[1]; out[4] = in[5]; out[7] = in[9];
+    out[2] = in[2]; out[5] = in[6]; out[8] = in[10];
+}
+
+GLvoid
+wes_mul4(matrix4_t *in0, matrix4_t *in1, matrix4_t *out)
+{
+    if (in0->flags == WES_M_IDENTITY){
+        *out = *in1;
+    } else if (in1->flags == WES_M_IDENTITY){
+        *out = *in0;
+    } else {
+        wes_mul4_general(in0->data, in1->data, out->data);
+    }
 }
 
 GLvoid
@@ -384,32 +388,6 @@ wes_rotate_x(GLfloat angle, GLfloat x)
     m_current->flags |= WES_M_ROTATED;
 }
 
-GLvoid
-wes_matrix_init()
-{
-    //Set all matrices to identity:
-    int i;
-    for(i = 0; i < WES_MODELVIEW_NUM; i++){
-        wes_identity(&m_modelview[i]);
-    }
-
-    for(i = 0; i < WES_PROJECTION_NUM; i++){
-        wes_identity(&m_projection[i]);
-    }
-    for(i = 0; i < WES_TEXTURE_NUM * WES_TEXTURE_UNITS; i++){
-        wes_identity(&m_texture[i]);
-    }
-
-    for(i = 0; i < WES_COLOR_NUM; i++){
-        wes_identity(&m_color[i]);
-    }
-
-    m_modelview_num = m_projection_num = 1;
-    m_texture_num = m_color_num = 1;
-    m_current = m_modelview;
-    m_mode = GL_MODELVIEW;
-    m_modelview_mod = m_projection_mod = 0;
-}
 
 GLvoid
 wes_invert_scaled(matrix4_t *in, matrix4_t *out)
@@ -533,11 +511,74 @@ wes_invert(matrix4_t *in, matrix4_t *out)
     }
 }
 
+GLvoid
+wes_matrix_init()
+{
+    //Set all matrices to identity:
+    int i;
+    for(i = 0; i < WES_MODELVIEW_NUM; i++){
+        wes_identity4(&m_modelview[i]);
+    }
+
+    for(i = 0; i < WES_PROJECTION_NUM; i++){
+        wes_identity4(&m_projection[i]);
+    }
+    for(i = 0; i < WES_TEXTURE_NUM * WES_TEXTURE_UNITS; i++){
+        wes_identity4(&m_texture[i]);
+    }
+
+    for(i = 0; i < WES_COLOR_NUM; i++){
+        wes_identity4(&m_color[i]);
+    }
+
+    m_modelview_num = m_projection_num = 1;
+    m_texture_num = m_color_num = 1;
+    m_current = m_modelview;
+    m_mode = GL_MODELVIEW;
+    m_modelview_mod = m_projection_mod = 1;
+}
+
+GLvoid
+wes_matrix_fprintf(FILE* f, matrix4_t *in)
+{
+    int i;
+
+    fprintf(f, "flags =");
+    if (in->flags & WES_M_IDENTITY){
+        fprintf(f, " IDENTITY");
+    }
+    if (in->flags & WES_M_SCALED){
+        fprintf(f, " SCALED");
+    }
+    if (in->flags & WES_M_ROTATED){
+        fprintf(f, " ROTATED");
+    }
+    if (in->flags & WES_M_TRANSLATED){
+        fprintf(f, " TRANSLATED");
+    }
+    if (in->flags & WES_M_PERSPECTIVE){
+        fprintf(f, " PERSPECTIVE");
+    }
+    if (in->flags & WES_M_DIRTY){
+        fprintf(f, " DIRTY");
+    }
+    fprintf(f, "\n");
+
+    for(i = 0; i < 4; i++)
+    {
+        fprintf(f, "|\t %0.3f \t %0.3f \t %0.3f \t %0.3f\t |\n",
+                in->data[i], in->data[i+4], in->data[i+8], in->data[i+12]);
+    }
+}
+
 GLboolean
 wes_matrix_mvit()
 {
     if (m_modelview_mod){
         wes_invert(m_modelview, m_modelview_it);
+        GLfloat tmp[16];
+        wes_transpose4(m_modelview_it->data, tmp);
+        wes_assign(tmp, m_modelview_it);
         wes_mat4to3(m_modelview_it->data, m_modelview_it3);
         return 1;
     } else {
@@ -550,13 +591,17 @@ wes_matrix_mvp()
 {
     if (m_modelview_mod || m_projection_mod){
         wes_mul4(m_modelview, m_projection, m_modelview_proj);
-        m_modelview_mod = m_projection_mod = 0;
         return 1;
     } else {
         return 0;
     }
 }
 
+GLvoid
+wes_matrix_update()
+{
+    m_modelview_mod = m_projection_mod = 0;
+}
 
 /* opengl api   */
 GLvoid
@@ -655,7 +700,7 @@ glLoadIdentity()
 {
     m_modelview_mod |= (m_mode == GL_MODELVIEW);
     m_projection_mod |= (m_mode == GL_PROJECTION);
-    wes_identity(m_current);
+    wes_identity4(m_current);
 }
 
 
@@ -749,30 +794,50 @@ glFrustrumf(float l, float r, float b, float t, float n, float f)
     m10 = - (f + n) / (f - n);
     m14 = - 2 * f * n / (f - n);
 
-    m_current->flags |= WES_M_DIRTY;
+    m_current->flags = WES_M_DIRTY;
 
-    mc8 = m_current->data[8];
-    mc9 = m_current->data[9];
-    mc10 = m_current->data[10];
-    mc11 = m_current->data[11];
+    if (m_current->flags == WES_M_IDENTITY){
+        m_current->data[0] = m0;
+        m_current->data[5] = m5;
+        m_current->data[8]  = m8;
+        m_current->data[9]  = m9;
+        m_current->data[10] = m10;
+        m_current->data[11] = -1.0;
+        m_current->data[14] = m14;
+        m_current->data[15] = 0;
+    } else if (m_current->flags == WES_M_SCALED || m_current->flags == (WES_M_SCALED|WES_M_TRANSLATED)){
+        m_current->data[0] *= m0;
+        m_current->data[5] *= m5;
+        m_current->data[8]  = m8 * m_current->data[0] - m_current->data[12];
+        m_current->data[9]  = m9 * m_current->data[5] - m_current->data[13];
+        m_current->data[10] = m10 * m_current->data[10] - m_current->data[14];
+        m_current->data[11] = -1.0;
+        m_current->data[14] = m14;
+        m_current->data[15] = 0;
+    } else {
+        mc8 = m_current->data[8];
+        mc9 = m_current->data[9];
+        mc10 = m_current->data[10];
+        mc11 = m_current->data[11];
 
-    /* Reordered to minimize temporary variables */
-    m_current->data[8]  = m8 * m_current->data[0] + m9 * m_current->data[4] + m10 * m_current->data[8] - m_current->data[12];
-	m_current->data[9]  = m8 * m_current->data[1] + m9 * m_current->data[5] + m10 * m_current->data[9] - m_current->data[13];
-	m_current->data[10] = m8 * m_current->data[2] + m9 * m_current->data[6] + m10 * m_current->data[10] - m_current->data[14];
-	m_current->data[11] = m8 * m_current->data[3] + m9 * m_current->data[7] + m10 * m_current->data[11] - m_current->data[15];
-    m_current->data[0] *= m0;
-	m_current->data[1] *= m0;
-	m_current->data[2] *= m0;
-	m_current->data[3] *= m0;
-	m_current->data[4] *= m5;
-	m_current->data[5] *= m5;
-	m_current->data[6] *= m5;
-	m_current->data[7] *= m5;
-	m_current->data[12] = m14 * mc8;
-	m_current->data[13] = m14 * mc9;
-	m_current->data[14] = m14 * mc10;
-	m_current->data[15] = m14 * mc11;
+        /* Reordered to minimize temporary variables */
+        m_current->data[8]  = m8 * m_current->data[0] + m9 * m_current->data[4] + m10 * m_current->data[8] - m_current->data[12];
+        m_current->data[9]  = m8 * m_current->data[1] + m9 * m_current->data[5] + m10 * m_current->data[9] - m_current->data[13];
+        m_current->data[10] = m8 * m_current->data[2] + m9 * m_current->data[6] + m10 * m_current->data[10] - m_current->data[14];
+        m_current->data[11] = m8 * m_current->data[3] + m9 * m_current->data[7] + m10 * m_current->data[11] - m_current->data[15];
+        m_current->data[0] *= m0;
+        m_current->data[1] *= m0;
+        m_current->data[2] *= m0;
+        m_current->data[3] *= m0;
+        m_current->data[4] *= m5;
+        m_current->data[5] *= m5;
+        m_current->data[6] *= m5;
+        m_current->data[7] *= m5;
+        m_current->data[12] = m14 * mc8;
+        m_current->data[13] = m14 * mc9;
+        m_current->data[14] = m14 * mc10;
+        m_current->data[15] = m14 * mc11;
+    }
 }
 
 GLvoid
@@ -787,7 +852,7 @@ glOrthof(float l, float r, float b, float t, float n, float f)
 
     m_modelview_mod |= (m_mode == GL_MODELVIEW);
     m_projection_mod |= (m_mode == GL_PROJECTION);
-    m_current->flags |= WES_M_DIRTY;
+    m_current->flags = WES_M_DIRTY;
 
     /* Reordered to minimize temporary variables */
 	m_current->data[12] += m12 * m_current->data[0] + m13 * m_current->data[4] + m14 * m_current->data[8];

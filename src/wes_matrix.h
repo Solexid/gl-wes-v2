@@ -16,7 +16,8 @@
 #define WES_M_SCALED                0x02
 #define WES_M_ROTATED               0x04
 #define WES_M_TRANSLATED            0x08
-#define WES_M_DIRTY                 0x10
+#define WES_M_PERSPECTIVE           0x10
+#define WES_M_DIRTY                 0x20
 
 /* matrix structure                     */
 typedef struct matrix4_s matrix4_t;
@@ -42,7 +43,10 @@ extern GLboolean   m_projection_mod;
 
 
 extern GLvoid       wes_matrix_init();
+extern GLvoid       wes_matrix_update();
 extern GLvoid       wes_matrix_destroy();
 extern GLboolean    wes_matrix_mvp();
 extern GLboolean    wes_matrix_mvit();
+extern GLvoid       wes_matrix_fprintf(FILE* f, matrix4_t *in);
+
 #endif

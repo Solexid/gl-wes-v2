@@ -52,11 +52,10 @@ wes_vertbuffer_flush()
     wes_gl->glUseProgram(sh_program);
     wes_gl->glUniform1i(sh_uloc.uEnableAlphaTest, GL_FALSE);
     wes_gl->glUniform1i(sh_uloc.uEnableTexture0, GL_TRUE);
-    wes_gl->glUniform1i(sh_uloc.uEnableColor0, GL_TRUE);
+    //wes_gl->glUniform1i(sh_uloc.uEnableColor0, GL_TRUE);
     wes_gl->glUniform1i(sh_uloc.uTexture0, 0);
     wes_gl->glUniform1i(sh_uloc.uEnableFogCoord,0);
 
-    //Modelview proj
     if (m_modelview_mod){
         wes_gl->glUniformMatrix4fv(sh_uloc.uMV, 1, GL_FALSE, m_modelview->data);
     }
@@ -64,10 +63,10 @@ wes_vertbuffer_flush()
         wes_gl->glUniformMatrix4fv(sh_uloc.uMVP, 1, GL_FALSE, m_modelview_proj->data);
     }
     if (wes_matrix_mvit()){
-        wes_gl->glUniformMatrix4fv(sh_uloc.uMVP, 1, GL_FALSE, m_modelview_it3);
+        wes_gl->glUniformMatrix3fv(sh_uloc.uMVIT, 1, GL_FALSE, m_modelview_it3);
     }
+    wes_matrix_update();
 
-    //Enable & Specify Vertex Arrays:
     wes_gl->glEnableVertexAttribArray(WES_APOS);
     wes_gl->glVertexAttribPointer(WES_APOS, vt_possize, GL_FLOAT, GL_FALSE, sizeof(sVertexAttrib), vt_vbuffer);
     if (vt_texcoord0size){

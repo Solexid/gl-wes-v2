@@ -49,14 +49,22 @@ struct sUniformLoc {
     struct {
         GLuint 	ColorAmbient, ColorDiffuse, ColorSpec, ColorEmissive;
         GLuint 	SpecExponent;
-    } uMaterial;
+    } uMaterial[2];
 
+    struct {
+    	GLuint ColorAmbient;
+        GLuint TwoSided;
+        GLuint LocalViewer;
+        GLuint ColorControl;
+    } uLightModel;
+
+    GLuint uRescaleFactor;
     GLuint uFogType, uFogDensity, uFogStart, uFogEnd, uFogColor;
     GLuint uClipPlane[6];
 
     GLuint uMVP;
     GLuint uMV;
-    GLuint uMVinv;
+    GLuint uMVIT;
 
     GLuint uAlphaFunc;
     GLuint uAlphaRef;

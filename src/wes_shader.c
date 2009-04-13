@@ -132,36 +132,61 @@ wes_setuniformloc(GLuint prog)
     sh_uloc.uEnableFogCoord         = wes_gl->glGetUniformLocation(prog, "uEnableFogCoord");
 
     for(i = 0; i != 8; i++){
-        sprintf(str, "uLight[%i].Type", i);
-        sh_uloc.uLight[i].Type      = wes_gl->glGetUniformLocation(prog, str);
         sprintf(str, "uLight[%i].DistAttenuation", i);
         sh_uloc.uLight[i].DistAttenuation = wes_gl->glGetUniformLocation(prog, str);
+        wes_gl->glUniform1i(sh_uloc.uLight[i].DistAttenuation, 0);
+
         sprintf(str, "uLight[%i].Position", i);
         sh_uloc.uLight[i].Position = wes_gl->glGetUniformLocation(prog, str);
+        wes_gl->glUniform4f(sh_uloc.uLight[i].Position, 0.0, 0.0, 0.0, 1.0);
+
         sprintf(str, "uLight[%i].Attenuation[0]", i);
         sh_uloc.uLight[i].Attenuation[0] = wes_gl->glGetUniformLocation(prog, str);
+        wes_gl->glUniform1f(sh_uloc.uLight[i].Attenuation[0], 1.0);
+
         sprintf(str, "uLight[%i].Attenuation[1]", i);
         sh_uloc.uLight[i].Attenuation[1] = wes_gl->glGetUniformLocation(prog, str);
+        wes_gl->glUniform1f(sh_uloc.uLight[i].Attenuation[1], 1.0);
+
         sprintf(str, "uLight[%i].Attenuation[2]", i);
         sh_uloc.uLight[i].Attenuation[2] = wes_gl->glGetUniformLocation(prog, str);
+        wes_gl->glUniform1f(sh_uloc.uLight[i].Attenuation[2], 1.0);
+
         sprintf(str, "uLight[%i].ColorAmbient", i);
         sh_uloc.uLight[i].ColorAmbient  = wes_gl->glGetUniformLocation(prog, str);
+        wes_gl->glUniform4f(sh_uloc.uLight[i].ColorAmbient, 0.0, 0.0, 0.0, 0.0);
+
         sprintf(str, "uLight[%i].ColorDiffuse", i);
         sh_uloc.uLight[i].ColorDiffuse  = wes_gl->glGetUniformLocation(prog, str);
+        wes_gl->glUniform4f(sh_uloc.uLight[i].ColorDiffuse, 1.0, 1.0, 1.0, 1.0);
+
         sprintf(str, "uLight[%i].ColorSpec", i);
         sh_uloc.uLight[i].ColorSpec  = wes_gl->glGetUniformLocation(prog, str);
+        wes_gl->glUniform4f(sh_uloc.uLight[i].ColorSpec, 0.0, 0.0, 0.0, 0.0);
+
         sprintf(str, "uLight[%i].SpotDir", i);
         sh_uloc.uLight[i].SpotDir  = wes_gl->glGetUniformLocation(prog, str);
+        wes_gl->glUniform3f(sh_uloc.uLight[i].SpotDir, 1.0, 0.0, 0.0);
+
         sprintf(str, "uLight[%i].SpotExponent", i);
         sh_uloc.uLight[i].SpotExponent  = wes_gl->glGetUniformLocation(prog, str);
+        wes_gl->glUniform1f(sh_uloc.uLight[i].ColorSpec, 1.0);
+
         sprintf(str, "uLight[%i].SpotCutoff", i);
         sh_uloc.uLight[i].SpotCutoff  = wes_gl->glGetUniformLocation(prog, str);
+        wes_gl->glUniform1f(sh_uloc.uLight[i].ColorSpec, 0.0);
     }
 
-    sh_uloc.uMaterial.ColorAmbient  = wes_gl->glGetUniformLocation(prog, "uMaterial.ColorAmbient");
-    sh_uloc.uMaterial.ColorDiffuse  = wes_gl->glGetUniformLocation(prog, "uMaterial.ColorDiffuse");
-    sh_uloc.uMaterial.ColorSpec     = wes_gl->glGetUniformLocation(prog, "uMaterial.ColorSpec");
-    sh_uloc.uMaterial.SpecExponent  = wes_gl->glGetUniformLocation(prog, "uMaterial.SpecExponent");
+    sh_uloc.uRescaleFactor  = wes_gl->glGetUniformLocation(prog, "uRescaleFactor");
+
+    sh_uloc.uMaterial[0].ColorAmbient  = wes_gl->glGetUniformLocation(prog, "uMaterial[0].ColorAmbient");
+    sh_uloc.uMaterial[0].ColorDiffuse  = wes_gl->glGetUniformLocation(prog, "uMaterial[0].ColorDiffuse");
+    sh_uloc.uMaterial[0].ColorSpec     = wes_gl->glGetUniformLocation(prog, "uMaterial[0].ColorSpec");
+    sh_uloc.uMaterial[0].SpecExponent  = wes_gl->glGetUniformLocation(prog, "uMaterial[0].SpecExponent");
+    sh_uloc.uMaterial[1].ColorAmbient   = wes_gl->glGetUniformLocation(prog, "uMaterial[1].ColorAmbient");
+    sh_uloc.uMaterial[1].ColorDiffuse   = wes_gl->glGetUniformLocation(prog, "uMaterial[1].ColorDiffuse");
+    sh_uloc.uMaterial[1].ColorSpec      = wes_gl->glGetUniformLocation(prog, "uMaterial[1].ColorSpec");
+    sh_uloc.uMaterial[1].SpecExponent   = wes_gl->glGetUniformLocation(prog, "uMaterial[1].SpecExponent");
 
     sh_uloc.uFogType    = wes_gl->glGetUniformLocation(prog, "uFogType");
     sh_uloc.uFogDensity = wes_gl->glGetUniformLocation(prog, "uFogDensity");
@@ -176,7 +201,7 @@ wes_setuniformloc(GLuint prog)
 
     sh_uloc.uMVP    = wes_gl->glGetUniformLocation(prog, "uMVP");
     sh_uloc.uMV     = wes_gl->glGetUniformLocation(prog, "uMV");
-    sh_uloc.uMVinv  = wes_gl->glGetUniformLocation(prog, "uMVinv");
+    sh_uloc.uMVIT   = wes_gl->glGetUniformLocation(prog, "uMVIT");
 
     sh_uloc.uAlphaFunc  = wes_gl->glGetUniformLocation(prog, "uAlphaFunc");
     sh_uloc.uAlphaRef   = wes_gl->glGetUniformLocation(prog, "uAlphaRef");
@@ -247,6 +272,8 @@ glLightfv(GLenum light, GLenum pname, GLfloat* params)
             wes_gl->glUniform1fv(sh_uloc.uLight[ind].Attenuation[1], 1, params); break;
         case GL_QUADRATIC_ATTENUATION:
             wes_gl->glUniform1fv(sh_uloc.uLight[ind].Attenuation[2], 1, params); break;
+        default:
+            PRINT_ERROR("Invalid glLightfv parameter name\n");
     }
 }
 
@@ -256,41 +283,106 @@ glMaterialfv(GLenum face, GLenum pname, GLfloat* params)
     switch(pname)
     {
         case GL_AMBIENT:
-            wes_gl->glUniform4fv(sh_uloc.uMaterial.ColorAmbient, 1, params); break;
+            if (face == GL_FRONT){
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[0].ColorAmbient, 1, params);
+            } else if (face == GL_BACK){
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[1].ColorAmbient, 1, params);
+            } else if (face == GL_FRONT_AND_BACK){
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[0].ColorAmbient, 1, params);
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[1].ColorAmbient, 1, params);
+            }
+            break;
+
         case GL_DIFFUSE:
-            wes_gl->glUniform4fv(sh_uloc.uMaterial.ColorDiffuse, 1, params); break;
+            if (face == GL_FRONT){
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[0].ColorDiffuse, 1, params);
+            } else if (face == GL_BACK){
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[1].ColorDiffuse, 1, params);
+            } else if (face == GL_FRONT_AND_BACK){
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[0].ColorDiffuse, 1, params);
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[1].ColorDiffuse, 1, params);
+            }
+            break;
+
         case GL_AMBIENT_AND_DIFFUSE:
-            wes_gl->glUniform4fv(sh_uloc.uMaterial.ColorAmbient, 1, params); break;
+            if (face == GL_FRONT){
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[0].ColorAmbient, 1, params);
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[0].ColorDiffuse, 1, params);
+            } else if (face == GL_BACK){
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[1].ColorAmbient, 1, params);
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[1].ColorDiffuse, 1, params);
+            } else if (face == GL_FRONT_AND_BACK){
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[0].ColorAmbient, 1, params);
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[0].ColorDiffuse, 1, params);
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[1].ColorAmbient, 1, params);
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[1].ColorDiffuse, 1, params);
+            }
+            break;
+
         case GL_SPECULAR:
-            wes_gl->glUniform4fv(sh_uloc.uMaterial.ColorSpec, 1, params); break;
+            if (face == GL_FRONT){
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[0].ColorSpec, 1, params);
+            } else if (face == GL_BACK){
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[1].ColorSpec, 1, params);
+            } else if (face == GL_FRONT_AND_BACK){
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[0].ColorSpec, 1, params);
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[1].ColorSpec, 1, params);
+            }
+            break;
+
         case GL_EMISSION:
-            wes_gl->glUniform4fv(sh_uloc.uMaterial.ColorEmissive, 1, params); break;
+            if (face == GL_FRONT){
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[0].ColorEmissive, 1, params);
+            } else if (face == GL_BACK){
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[1].ColorEmissive, 1, params);
+            } else if (face == GL_FRONT_AND_BACK){
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[0].ColorEmissive, 1, params);
+                wes_gl->glUniform4fv(sh_uloc.uMaterial[1].ColorEmissive, 1, params);
+            }
+            break;
+
         case GL_SHININESS:
-            wes_gl->glUniform1fv(sh_uloc.uMaterial.SpecExponent, 1, params); break;
+            if (face == GL_FRONT){
+                wes_gl->glUniform1f(sh_uloc.uMaterial[0].SpecExponent, *params);
+            } else if (face == GL_BACK){
+                wes_gl->glUniform1f(sh_uloc.uMaterial[1].SpecExponent, *params);
+            } else if (face == GL_FRONT_AND_BACK){
+                wes_gl->glUniform1f(sh_uloc.uMaterial[0].SpecExponent, *params);
+                wes_gl->glUniform1f(sh_uloc.uMaterial[1].SpecExponent, *params);
+            }
+            break;
+
+        default:
+            PRINT_ERROR("Invalid glMaterialfv parameter name\n");
     }
 }
 
-/*
+
 GLvoid
-glLightModel(GLenum pname, GLfloat* params)
+glLightModelfv(GLenum pname, GLfloat* params)
 {
     switch(pname)
     {
         case GL_LIGHT_MODEL_AMBIENT:
-            wes_gl->glUniform4fv(sh_uloc.uMaterial.ColorAmbient, 1, params); break;
-        case GL_DIFFUSE:
-            wes_gl->glUniform4fv(sh_uloc.uMaterial.ColorDiffuse, 1, params); break;
-        case GL_AMBIENT_AND_DIFFUSE:
-            wes_gl->glUniform4fv(sh_uloc.uMaterial.ColorAmbient, 1, params); break;
-        case GL_SPECULAR:
-            wes_gl->glUniform4fv(sh_uloc.uMaterial.ColorSpec, 1, params); break;
-        case GL_EMISSION:
-            wes_gl->glUniform4fv(sh_uloc.uMaterial.ColorEmissive, 1, params); break;
-        case GL_SHININESS:
-            wes_gl->glUniform1fv(sh_uloc.uMaterial.SpecExponent, 1, params); break;
+            wes_gl->glUniform4fv(sh_uloc.uLightModel.ColorAmbient, 1, params); break;
+        case GL_LIGHT_MODEL_TWO_SIDE:
+            wes_gl->glUniform1i(sh_uloc.uLightModel.TwoSided, *params > 0); break;
     }
 }
-*/
+
+GLvoid
+glLightModeli(GLenum pname, GLint params)
+{
+    switch(pname)
+    {
+        case GL_LIGHT_MODEL_TWO_SIDE:
+            wes_gl->glUniform1i(sh_uloc.uLightModel.TwoSided, params); break;
+        case GL_LIGHT_MODEL_LOCAL_VIEWER:
+            wes_gl->glUniform1i(sh_uloc.uLightModel.LocalViewer, params); break;
+        case GL_LIGHT_MODEL_COLOR_CONTROL:
+            wes_gl->glUniform1i(sh_uloc.uLightModel.ColorControl, params); break;
+    }
+}
 
 GLvoid
 glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr)

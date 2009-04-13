@@ -6,8 +6,19 @@
 #include "wes_gl.h"
 #include "wes_glu.h"
 
+#include "wes_matrix.h"
+
+GLfloat     xrot = 45, yrot, zrot;
 GLfloat     x = 0, y = 0, z = -5.0;
+GLfloat     xspeed = 0, yspeed = 0, zspeed = 0;
+uint32_t    frames = 0;
+GLfloat     delta = 0;
+uint32_t    t0 = 0;
+
 uint32_t    loop = 1;
+
+uint8_t     *Keyboard;
+
 
 EGLint		VersionMajor;
 EGLint		VersionMinor;
@@ -107,43 +118,52 @@ context_open(uint32_t w, uint32_t h, uint32_t vsync)
         PRINT_ERROR("\nMake Current failed: %s", EGLErrorString());
     };
     eglSwapInterval(Display, vsync);
+
+    int num;
+    SDL_GetKeyState(&num);
+    Keyboard = malloc(num * sizeof(uint8_t));
+
 }
 
 void
-context_handlekey(SDL_KeyboardEvent *key)
+context_handlekey()
 {
-    switch(key->keysym.sym){
-        case SDLK_ESCAPE:
-            loop = 0;
-            break;
-        case SDLK_UP:
-            y += 0.5;
-            break;
-        case SDLK_DOWN:
-            y -= 0.5;
-            break;
-        case SDLK_LEFT:
-            x -= 0.5;
-            break;
-        case SDLK_RIGHT:
-            x += 0.5;
-            break;
-        case SDLK_PAGEUP:
-            z -= 0.5;
-            break;
-        case SDLK_PAGEDOWN:
-            z += 0.5;
-            break;
-        default:
-            break;
-    }
 
+    int num, i;
+    uint8_t* key = SDL_GetKeyState(&num);
+    for(i = 0; i < num; i++){
+        Keyboard[i] = key[i];
+    }
+    if (Keyboard[SDLK_ESCAPE]){
+        loop = 0;
+    }
+    if (Keyboard[SDLK_UP]){
+        y += 0.1 * delta;
+    }
+    if (Keyboard[SDLK_DOWN]){
+        y -= 0.1 * delta;
+    }
+    if (Keyboard[SDLK_LEFT]){
+        x -= 0.1 * delta;
+    }
+    if (Keyboard[SDLK_RIGHT]){
+        x += 0.1 * delta;
+    }
+    if (Keyboard[SDLK_PAGEUP]){
+        z += 0.1 * delta;
+    }
+    if (Keyboard[SDLK_PAGEDOWN]){
+        z -= 0.1 * delta;
+    }
 }
 
 void
 context_update()
 {
     eglSwapBuffers(Display, Surface);
+
+
+    context_handlekey();
 
     SDL_Event event;
     while(SDL_PollEvent(&event)) {
@@ -152,9 +172,6 @@ context_update()
                 loop = 0;
                 break;
             }
-            case SDL_KEYDOWN:
-                context_handlekey(&event.key);
-                break;
         }
     }
 }
@@ -162,6 +179,7 @@ context_update()
 void
 context_close()
 {
+    free(Keyboard);
 	eglSwapBuffers(Display, Surface);
 	eglMakeCurrent(Display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
  	eglDestroyContext(Display, Context);
@@ -190,7 +208,7 @@ int LoadGLTextures( )
     return Status;
 }
 
-GLfloat xrot, yrot, zrot;
+
 
 void
 draw()
@@ -248,96 +266,36 @@ draw()
       glTexCoord2f( 0.0f, 1.0f ); glVertex3f( -1.0f,  1.0f,  1.0f );
       glTexCoord2f( 1.0f, 1.0f ); glVertex3f( -1.0f,  1.0f, -1.0f );
     glEnd( );
-    xrot += 0.3f; /* X Axis Rotation */
-    yrot += 0.2f; /* Y Axis Rotation */
-    zrot += 0.4f; /* Z Axis Rotation */
+    xrot += 0.3 * delta; /* X Axis Rotation */
+    yrot += 0.2 * delta; /* Y Axis Rotation */
+    zrot += 0.4 * delta; /* Z Axis Rotation */
 
-    /*
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear Screen And Depth Buffer
-	glLoadIdentity();									// Reset The Current Modelview Matrix
-	glTranslatef(-1.5f,0.0f,-6.0f);						// Move Left 1.5 Units And Into The Screen 6.0
-	glRotatef(rtri,0.0f,1.0f,0.0f);						// Rotate The Triangle On The Y axis ( NEW )
-	glBegin(GL_TRIANGLES);								// Start Drawing A Triangle
-		glColor3f(1.0f,0.0f,0.0f);						// Red
-		glVertex3f( 0.0f, 1.0f, 0.0f);					// Top Of Triangle (Front)
-		glColor3f(0.0f,1.0f,0.0f);						// Green
-		glVertex3f(-1.0f,-1.0f, 1.0f);					// Left Of Triangle (Front)
-		glColor3f(0.0f,0.0f,1.0f);						// Blue
-		glVertex3f( 1.0f,-1.0f, 1.0f);					// Right Of Triangle (Front)
-		glColor3f(1.0f,0.0f,0.0f);						// Red
-		glVertex3f( 0.0f, 1.0f, 0.0f);					// Top Of Triangle (Right)
-		glColor3f(0.0f,0.0f,1.0f);						// Blue
-		glVertex3f( 1.0f,-1.0f, 1.0f);					// Left Of Triangle (Right)
-		glColor3f(0.0f,1.0f,0.0f);						// Green
-		glVertex3f( 1.0f,-1.0f, -1.0f);					// Right Of Triangle (Right)
-		glColor3f(1.0f,0.0f,0.0f);						// Red
-		glVertex3f( 0.0f, 1.0f, 0.0f);					// Top Of Triangle (Back)
-		glColor3f(0.0f,1.0f,0.0f);						// Green
-		glVertex3f( 1.0f,-1.0f, -1.0f);					// Left Of Triangle (Back)
-		glColor3f(0.0f,0.0f,1.0f);						// Blue
-		glVertex3f(-1.0f,-1.0f, -1.0f);					// Right Of Triangle (Back)
-		glColor3f(1.0f,0.0f,0.0f);						// Red
-		glVertex3f( 0.0f, 1.0f, 0.0f);					// Top Of Triangle (Left)
-		glColor3f(0.0f,0.0f,1.0f);						// Blue
-		glVertex3f(-1.0f,-1.0f,-1.0f);					// Left Of Triangle (Left)
-		glColor3f(0.0f,1.0f,0.0f);						// Green
-		glVertex3f(-1.0f,-1.0f, 1.0f);					// Right Of Triangle (Left)
-	glEnd();											// Done Drawing The Pyramid
+    frames++;
+	GLint t = SDL_GetTicks();
+	if (t - t0 > 100){
+        GLfloat seconds = (t - t0) / 1000.0;
+        GLfloat fps = frames / seconds;
+        printf("%g FPS\n", fps);
+        delta = 60.0 / fps;
+        t0 = t;
+        frames  = 0;
+	}
 
-    glColor3f(0.0f,1.0f,0.0f);
-	glLoadIdentity();									// Reset The Current Modelview Matrix
-	glTranslatef(1.5f,0.0f,-7.0f);						// Move Right 1.5 Units And Into The Screen 7.0
-	glRotatef(rquad,1.0f,1.0f,1.0f);					// Rotate The Quad On The X axis ( NEW )
-	glBegin(GL_QUADS);									// Draw A Quad
-		glColor3f(0.0f,1.0f,0.0f);						// Set The Color To Green
-		glVertex3f( 1.0f, 1.0f,-1.0f);					// Top Right Of The Quad (Top)
-		glVertex3f(-1.0f, 1.0f,-1.0f);					// Top Left Of The Quad (Top)
-		glVertex3f(-1.0f, 1.0f, 1.0f);					// Bottom Left Of The Quad (Top)
-		glVertex3f( 1.0f, 1.0f, 1.0f);					// Bottom Right Of The Quad (Top)
-		glColor3f(1.0f,0.5f,0.0f);						// Set The Color To Orange
-		glVertex3f( 1.0f,-1.0f, 1.0f);					// Top Right Of The Quad (Bottom)
-		glVertex3f(-1.0f,-1.0f, 1.0f);					// Top Left Of The Quad (Bottom)
-		glVertex3f(-1.0f,-1.0f,-1.0f);					// Bottom Left Of The Quad (Bottom)
-		glVertex3f( 1.0f,-1.0f,-1.0f);					// Bottom Right Of The Quad (Bottom)
-		glColor3f(1.0f,0.0f,0.0f);						// Set The Color To Red
-		glVertex3f( 1.0f, 1.0f, 1.0f);					// Top Right Of The Quad (Front)
-		glVertex3f(-1.0f, 1.0f, 1.0f);					// Top Left Of The Quad (Front)
-		glVertex3f(-1.0f,-1.0f, 1.0f);					// Bottom Left Of The Quad (Front)
-		glVertex3f( 1.0f,-1.0f, 1.0f);					// Bottom Right Of The Quad (Front)
-		glColor3f(1.0f,1.0f,0.0f);						// Set The Color To Yellow
-		glVertex3f( 1.0f,-1.0f,-1.0f);					// Top Right Of The Quad (Back)
-		glVertex3f(-1.0f,-1.0f,-1.0f);					// Top Left Of The Quad (Back)
-		glVertex3f(-1.0f, 1.0f,-1.0f);					// Bottom Left Of The Quad (Back)
-		glVertex3f( 1.0f, 1.0f,-1.0f);					// Bottom Right Of The Quad (Back)
-		glColor3f(0.0f,0.0f,1.0f);						// Set The Color To Blue
-		glVertex3f(-1.0f, 1.0f, 1.0f);					// Top Right Of The Quad (Left)
-		glVertex3f(-1.0f, 1.0f,-1.0f);					// Top Left Of The Quad (Left)
-		glVertex3f(-1.0f,-1.0f,-1.0f);					// Bottom Left Of The Quad (Left)
-		glVertex3f(-1.0f,-1.0f, 1.0f);					// Bottom Right Of The Quad (Left)
-		glColor3f(1.0f,0.0f,1.0f);						// Set The Color To Violet
-		glVertex3f( 1.0f, 1.0f,-1.0f);					// Top Right Of The Quad (Right)
-		glVertex3f( 1.0f, 1.0f, 1.0f);					// Top Left Of The Quad (Right)
-		glVertex3f( 1.0f,-1.0f, 1.0f);					// Bottom Left Of The Quad (Right)
-		glVertex3f( 1.0f,-1.0f,-1.0f);					// Bottom Right Of The Quad (Right)
-	glEnd();											// Done Drawing The Quad
-
-	rtri+=0.6f;											// Increase The Rotation Variable For The Triangle ( NEW )
-	rquad-=0.45f;										// Decrease The Rotation Variable For The Quad ( NEW )
-	*/
+    x += xspeed * delta;
+    y += yspeed * delta;
+    z += zspeed * delta;
 }
 
 
 int
 main(int argc, char* argv[])
 {
-    freopen("stdout.txt", "w", stdout);
-    freopen("stderr.txt", "w", stderr);
-    fprintf(stdout, "Stdout\n"); fflush(stdout);
-    fprintf(stderr, "stderr\n"); fflush(stderr);
-
     context_open(640, 480, 0);
     wes_init();
 
+    /* Output to console    */
+    freopen( "CON", "w", stdout );
+    freopen( "CON", "w", stderr );
 
     glClearDepth(1.0f);
 	glEnable(GL_DEPTH_TEST);
@@ -356,14 +314,14 @@ main(int argc, char* argv[])
     glFogf(GL_FOG_END, 10.0f);				// Fog End Depth
     glEnable(GL_FOG);					// Enables GL_FOG
 
-
     GLfloat amb[] = {0,0,0,0};
     GLfloat diff[] = {1,1,1,1};
-    GLfloat pos[] = {0,0,0,0};
+    GLfloat pos[] = {0,0,0,1.0};
     glLightfv(GL_LIGHT1, GL_AMBIENT, amb);				// Setup The Ambient Light
     glLightfv(GL_LIGHT1, GL_DIFFUSE, diff);				// Setup The Ambient Light
-    glLightfv(GL_LIGHT1, GL_DIFFUSE, pos);				// Setup The Ambient Light
-    //glEnable(GL_LIGHTING);
+    glLightfv(GL_LIGHT1, GL_POSITION, pos);				// Setup The Ambient Light
+    glEnable(GL_LIGHT1);
+    glEnable(GL_LIGHTING);
 
 
     glMatrixMode(GL_PROJECTION);

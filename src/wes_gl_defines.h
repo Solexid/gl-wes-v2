@@ -54,6 +54,9 @@
 #define GL_COLOR_MATERIAL_PARAMETER             0x0B56
 #define GL_NORMALIZE                            0x0BA1
 #define GL_RESCALE_NORMAL                       0x803A
+#define GL_LIGHT_MODEL_COLOR_CONTROL            0x81F8
+#define GL_SINGLE_COLOR                         0x81F9
+#define GL_SEPARATE_SPECULAR_COLOR              0x81FA
 
 /* Fog */
 #define GL_FOG                                  0x0B60
