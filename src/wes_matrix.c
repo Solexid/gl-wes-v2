@@ -458,43 +458,44 @@ wes_invert_rotated(matrix4_t *in, matrix4_t *out)
 GLvoid
 wes_invert_general(matrix4_t *in, matrix4_t *out)
 {
-    GLfloat det, tmp[12];
-
-    tmp[0] = in->data[0] * in->data[5] - in->data[1] * in->data[4];
-    tmp[1] = in->data[0] * in->data[6] - in->data[2] * in->data[4];
-    tmp[2] = in->data[0] * in->data[7] - in->data[3] * in->data[4];
-    tmp[3] = in->data[1] * in->data[6] - in->data[2] * in->data[5];
-    tmp[4] = in->data[1] * in->data[7] - in->data[3] * in->data[5];
-    tmp[5] = in->data[2] * in->data[7] - in->data[3] * in->data[6];
-    tmp[6] = in->data[8] * in->data[13] - in->data[9] * in->data[12];
-    tmp[7] = in->data[8] * in->data[14] - in->data[10] * in->data[12];
-    tmp[8] = in->data[8] * in->data[15] - in->data[11] * in->data[12];
-    tmp[9] = in->data[9] * in->data[14] - in->data[10] * in->data[13];
-    tmp[10] = in->data[9] * in->data[15] - in->data[11] * in->data[13];
-    tmp[11] = in->data[10] * in->data[15] - in->data[11] * in->data[14];
+    GLfloat tmp[12];
+    GLfloat det;
+    tmp[0] = in->data[0] * in->data[5] - in->data[4] * in->data[1];
+    tmp[1] = in->data[0] * in->data[9] - in->data[8] * in->data[1];
+    tmp[2] = in->data[0] * in->data[13] - in->data[12] * in->data[1];
+    tmp[3] = in->data[4] * in->data[9] - in->data[8] * in->data[5];
+    tmp[4] = in->data[4] * in->data[13] - in->data[12] * in->data[5];
+    tmp[5] = in->data[8] * in->data[13] - in->data[12] * in->data[9];
+    tmp[6] = in->data[2] * in->data[7] - in->data[6] * in->data[3];
+    tmp[7] = in->data[2] * in->data[11] - in->data[10] * in->data[3];
+    tmp[8] = in->data[2] * in->data[15] - in->data[14] * in->data[3];
+    tmp[9] = in->data[6] * in->data[11] - in->data[10] * in->data[7];
+    tmp[10] = in->data[6] * in->data[15] - in->data[14] * in->data[7];
+    tmp[11] = in->data[10] * in->data[15] - in->data[14] * in->data[11];
 
     det = tmp[0] * tmp[11] - tmp[1] * tmp[10] + tmp[2] * tmp[9] + tmp[3] * tmp[8] - tmp[4] * tmp[7] + tmp[5] * tmp[6];
-    if (det == 0){
+    if (det == 0.0)
+    {
         return;
     }
-
     det = 1.0 / det;
-    out->data[0]  = + det * (in->data[5] * tmp[11]  - in->data[6] * tmp[10]  + in->data[7] * tmp[9]);
-    out->data[1]  = - det * (in->data[1] * tmp[11]  + in->data[2] * tmp[10]  - in->data[3] * tmp[9]);
-    out->data[2]  = + det * (in->data[13] * tmp[5] - in->data[14] * tmp[4] + in->data[15] * tmp[3]);
-    out->data[3]  = - det * (in->data[9] * tmp[5]  + in->data[10] * tmp[4] - in->data[11] * tmp[3]);
-    out->data[4]  = - det * (in->data[4] * tmp[11]  + in->data[6] * tmp[8]  - in->data[7] * tmp[7]);
-    out->data[5]  = + det * (in->data[0] * tmp[11]  - in->data[2] * tmp[8]  + in->data[3] * tmp[7]);
-    out->data[6]  = - det * (in->data[12] * tmp[5] + in->data[14] * tmp[2] - in->data[15] * tmp[1]);
-    out->data[7]  = + det * (in->data[8] * tmp[5]  - in->data[10] * tmp[2] + in->data[11] * tmp[1]);
-    out->data[8]  = + det * (in->data[4] * tmp[10]  - in->data[5] * tmp[8]  + in->data[7] * tmp[6]);
-    out->data[9]  = - det * (in->data[0] * tmp[10]  + in->data[1] * tmp[8]  - in->data[3] * tmp[6]);
-    out->data[10] = + det * (in->data[12] * tmp[4] - in->data[13] * tmp[2] + in->data[15] * tmp[0]);
-    out->data[11] = - det * (in->data[8] * tmp[4]  + in->data[9] * tmp[2]  - in->data[11] * tmp[0]);
-    out->data[12] = - det * (in->data[4] * tmp[9]  + in->data[5] * tmp[7]  - in->data[6] * tmp[6]);
-    out->data[13] = + det * (in->data[0] * tmp[9]  - in->data[1] * tmp[7]  + in->data[2] * tmp[6]);
-    out->data[14] = - det * (in->data[12] * tmp[3] + in->data[13] * tmp[1] - in->data[14] * tmp[0]);
-    out->data[15] = + det * (in->data[8] * tmp[3]  - in->data[9] * tmp[1]  + in->data[10] * tmp[0]);
+
+    out->data[0] = + det * (in->data[5] * tmp[11] - in->data[9] * tmp[10] + in->data[13] * tmp[9]);
+    out->data[1] = - det * (in->data[1] * tmp[11] + in->data[9] * tmp[8] - in->data[13] * tmp[7]);
+    out->data[2] = + det * (in->data[1] * tmp[10] - in->data[5] * tmp[8] + in->data[13] * tmp[6]);
+    out->data[3] = - det * (in->data[1] * tmp[9] + in->data[5] * tmp[7] - in->data[9] * tmp[6]);
+    out->data[4] = - det * (in->data[4] * tmp[11] + in->data[8] * tmp[10] - in->data[12] * tmp[9]);
+    out->data[5] = + det * (in->data[0] * tmp[11] - in->data[8] * tmp[8] + in->data[12] * tmp[7]);
+    out->data[6] = - det * (in->data[0] * tmp[10] + in->data[4] * tmp[8] - in->data[12] * tmp[6]);
+    out->data[7] = + det * (in->data[0] * tmp[9] - in->data[4] * tmp[7] + in->data[8] * tmp[6]);
+    out->data[8] = + det * (in->data[7] * tmp[5] - in->data[11] * tmp[4] + in->data[15] * tmp[3]);
+    out->data[9] = - det * (in->data[3] * tmp[5] + in->data[11] * tmp[2] - in->data[15] * tmp[1]);
+    out->data[10] = + det * (in->data[3] * tmp[4] - in->data[7] * tmp[2] + in->data[15] * tmp[0]);
+    out->data[11] = - det * (in->data[3] * tmp[3] + in->data[7] * tmp[1] - in->data[11] * tmp[0]);
+    out->data[12] = - det * (in->data[6] * tmp[5] + in->data[10] * tmp[4] - in->data[14] * tmp[3]);
+    out->data[13] = + det * (in->data[2] * tmp[5] - in->data[10] * tmp[2] + in->data[14] * tmp[1]);
+    out->data[14] = - det * (in->data[2] * tmp[4] + in->data[6] * tmp[2] - in->data[14] * tmp[0]);
+    out->data[15] = + det * (in->data[2] * tmp[3] - in->data[6] * tmp[1] + in->data[10] * tmp[0]);
 }
 
 GLvoid
@@ -508,6 +509,47 @@ wes_invert(matrix4_t *in, matrix4_t *out)
         wes_invert_rotated(in, out);
     } else {
         wes_invert_general(in, out);
+    }
+}
+
+GLvoid
+wes_inverttranspose(matrix4_t *in, matrix4_t *out)
+{
+    /*if (in->flags == WES_M_IDENTITY || in->flags == (WES_M_IDENTITY|WES_M_TRANSLATED)){
+        *out = *in;
+    } else if (in->flags == WES_M_SCALED || in->flags == (WES_M_SCALED|WES_M_TRANSLATED)){
+        matrix4_t tmp[1];
+        wes_invert_scaled(in, tmp);
+        wes_transpose4(tmp->data, out->data);
+    } else if (in->flags == WES_M_ROTATED || in->flags == (WES_M_ROTATED|WES_M_TRANSLATED)){
+        *out = *in;
+    } else {*/
+        matrix4_t tmp[1];
+        wes_invert_general(in, tmp);
+        wes_transpose4(tmp->data, out->data);
+    //}
+}
+
+GLvoid
+wes_matvec4(matrix4_t *m, GLfloat *v, GLfloat *mv)
+{
+    if (m->flags == WES_M_IDENTITY){
+        mv[0] = v[0]; mv[1] = v[1]; mv[2] = v[2]; mv[3] = v[3];
+    } else if (m->flags == WES_M_SCALED || m->flags == (WES_M_SCALED|WES_M_TRANSLATED)){
+        mv[0] = m->data[0] * v[0] + m->data[12] * v[3];
+        mv[1] = m->data[5] * v[1] + m->data[13] * v[3];
+        mv[2] = m->data[10] * v[2] + m->data[14] * v[3];
+        mv[3] = v[3];
+    } else if (m->flags == WES_M_ROTATED || m->flags == (WES_M_ROTATED|WES_M_TRANSLATED)){
+        mv[0] = m->data[0] * v[0] + m->data[4] * v[1] + m->data[8] * v[2] + m->data[12] * v[3];
+        mv[1] = m->data[1] * v[0] + m->data[5] * v[1] + m->data[9] * v[2] + m->data[13] * v[3];
+        mv[2] = m->data[2] * v[0] + m->data[6] * v[1] + m->data[10] * v[2] + m->data[14] * v[3];
+        mv[3] = v[3];
+    } else {
+        mv[0] = m->data[0] * v[0] + m->data[4] * v[1] + m->data[8] * v[2] + m->data[12] * v[3];
+        mv[1] = m->data[1] * v[0] + m->data[5] * v[1] + m->data[9] * v[2] + m->data[13] * v[3];
+        mv[2] = m->data[2] * v[0] + m->data[6] * v[1] + m->data[10] * v[2] + m->data[14] * v[3];
+        mv[3] = m->data[3] * v[0] + m->data[7] * v[1] + m->data[11] * v[2] + m->data[15] * v[3];
     }
 }
 
@@ -575,10 +617,7 @@ GLboolean
 wes_matrix_mvit()
 {
     if (m_modelview_mod){
-        wes_invert(m_modelview, m_modelview_it);
-        GLfloat tmp[16];
-        wes_transpose4(m_modelview_it->data, tmp);
-        wes_assign(tmp, m_modelview_it);
+        wes_inverttranspose(m_modelview, m_modelview_it);
         wes_mat4to3(m_modelview_it->data, m_modelview_it3);
         return 1;
     } else {

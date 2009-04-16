@@ -12,20 +12,13 @@ uniform sampler2D		uTexture0;
 
 //Enables:
 uniform	bool			uEnableAlphaTest;
-uniform	bool			uEnableRescaleNormal;
-uniform	bool			uEnableNormalize;
 uniform	bool			uEnableTextureGenS;
 uniform	bool			uEnableTextureGenT;
 uniform	bool			uEnableTextureGenR;
 uniform	bool			uEnableTextureGenQ;
 uniform	bool			uEnableClipPlane[6];
 uniform	bool			uEnableLighting;
-uniform	bool			uEnableLight[8];
-uniform	bool			uEnableColorMaterial;
 uniform	bool			uEnableFog;
-uniform	bool			uEnableColor0;
-uniform	bool			uEnableTexture0;
-
 
 uniform	int				uAlphaFunc;
 uniform	highp float		uAlphaRef;
@@ -39,13 +32,9 @@ varying mediump float 	vFogFactor;
 varying mediump float 	vClipFactor;
 
 void main(){
-	gl_FragColor = vec4(1.0,1.0,1.0,1.0);
-	if (uEnableTexture0){
-		gl_FragColor = texture2D(uTexture0, vTexCoord0.xy);
-	}
-	if (uEnableColor0 || uEnableLighting){
-		gl_FragColor *= vColor0; 
-	}
+	gl_FragColor = texture2D(uTexture0, vTexCoord0.xy);
+	gl_FragColor *= vColor0; 
+	
 	if (uEnableFog){
 		gl_FragColor = gl_FragColor * vFogFactor + (1.0 - vFogFactor) * uFogColor;
 	}

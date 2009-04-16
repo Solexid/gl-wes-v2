@@ -48,5 +48,7 @@ extern GLvoid       wes_matrix_destroy();
 extern GLboolean    wes_matrix_mvp();
 extern GLboolean    wes_matrix_mvit();
 extern GLvoid       wes_matrix_fprintf(FILE* f, matrix4_t *in);
+extern GLvoid       wes_matvec4(matrix4_t *m, GLfloat *v, GLfloat *mv);
+
 
 #endif

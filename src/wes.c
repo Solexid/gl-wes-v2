@@ -199,8 +199,9 @@ wes_init()
     }
 
     wes_shader_init();
-    wes_begin_init();
     wes_matrix_init();
+    wes_state_init();
+    wes_begin_init();
 }
 
 GLvoid

@@ -19,6 +19,8 @@ uint32_t    loop = 1;
 
 uint8_t     *Keyboard;
 
+GLfloat     lightpos[4] = {0, 0, 0, 1};
+
 
 EGLint		VersionMajor;
 EGLint		VersionMinor;
@@ -155,6 +157,18 @@ context_handlekey()
     if (Keyboard[SDLK_PAGEDOWN]){
         z -= 0.1 * delta;
     }
+    if (Keyboard[SDLK_w]){
+        lightpos[1] += 0.1 * delta;
+    }
+    if (Keyboard[SDLK_s]){
+        lightpos[1] -= 0.1 * delta;
+    }
+    if (Keyboard[SDLK_a]){
+        lightpos[0] -= 0.1 * delta;
+    }
+    if (Keyboard[SDLK_d]){
+        lightpos[0] += 0.1 * delta;
+    }
 }
 
 void
@@ -217,11 +231,14 @@ draw()
 
     /* Move Into The Screen 5 Units */
     glLoadIdentity();
+    //glLightfv(GL_LIGHT1, GL_POSITION, lightpos);				// Setup The Ambient Light
+
     glTranslatef( x, y, z );
 
     glRotatef( xrot, 1.0f, 0.0f, 0.0f); /* Rotate On The X Axis */
     glRotatef( yrot, 0.0f, 1.0f, 0.0f); /* Rotate On The Y Axis */
     glRotatef( zrot, 0.0f, 0.0f, 1.0f); /* Rotate On The Z Axis */
+    glScalef(1.5,1.5,1.0);
 
     /* Select Our Texture */
     glActiveTexture(GL_TEXTURE0);
@@ -291,11 +308,11 @@ int
 main(int argc, char* argv[])
 {
     context_open(640, 480, 0);
-    wes_init();
-
-    /* Output to console    */
+        /* Output to console    */
     freopen( "CON", "w", stdout );
     freopen( "CON", "w", stderr );
+
+    wes_init();
 
     glClearDepth(1.0f);
 	glEnable(GL_DEPTH_TEST);
@@ -305,24 +322,28 @@ main(int argc, char* argv[])
     glDepthRangef(0, 1.0);
     glViewport(0, 0, 640, 480);
 
-    GLfloat col[] = {1,1,1,1};
+
+    GLfloat col[] = {1.0,1.0,1.0,1.0};
     glFogi(GL_FOG_COORD_SRC, 0);		// Fog Mode
     glFogi(GL_FOG_MODE, GL_LINEAR);		// Fog Mode
     glFogfv(GL_FOG_COLOR, col);			// Set Fog Color
-    glFogf(GL_FOG_DENSITY, 0.35f);				// How Dense Will The Fog Be
+    glFogf(GL_FOG_DENSITY, 0.515f);				// How Dense Will The Fog Be
     glFogf(GL_FOG_START, 5.0f);				// Fog Start Depth
     glFogf(GL_FOG_END, 10.0f);				// Fog End Depth
-    glEnable(GL_FOG);					// Enables GL_FOG
+    //glEnable(GL_FOG);					// Enables GL_FOG
 
     GLfloat amb[] = {0,0,0,0};
     GLfloat diff[] = {1,1,1,1};
-    GLfloat pos[] = {0,0,0,1.0};
     glLightfv(GL_LIGHT1, GL_AMBIENT, amb);				// Setup The Ambient Light
     glLightfv(GL_LIGHT1, GL_DIFFUSE, diff);				// Setup The Ambient Light
-    glLightfv(GL_LIGHT1, GL_POSITION, pos);				// Setup The Ambient Light
+    glLightfv(GL_LIGHT1, GL_POSITION, lightpos);				// Setup The Ambient Light
+    glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0);				// Setup The Ambient Light
+    glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.0);				// Setup The Ambient Light
+    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.0);				// Setup The Ambient Light
+
     glEnable(GL_LIGHT1);
     glEnable(GL_LIGHTING);
-
+    glEnable(GL_NORMALIZE);
 
     glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();

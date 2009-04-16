@@ -5,6 +5,7 @@
 #include "wes_begin.h"
 #include "wes_shader.h"
 #include "wes_matrix.h"
+#include "wes_uniform.h"
 
 #define WES_MODE_NONE       0
 
@@ -50,22 +51,8 @@ wes_vertbuffer_flush()
     }
 
     wes_gl->glUseProgram(sh_program);
-    wes_gl->glUniform1i(sh_uloc.uEnableAlphaTest, GL_FALSE);
-    wes_gl->glUniform1i(sh_uloc.uEnableTexture0, GL_TRUE);
-    //wes_gl->glUniform1i(sh_uloc.uEnableColor0, GL_TRUE);
-    wes_gl->glUniform1i(sh_uloc.uTexture0, 0);
-    wes_gl->glUniform1i(sh_uloc.uEnableFogCoord,0);
 
-    if (m_modelview_mod){
-        wes_gl->glUniformMatrix4fv(sh_uloc.uMV, 1, GL_FALSE, m_modelview->data);
-    }
-    if (wes_matrix_mvp()){
-        wes_gl->glUniformMatrix4fv(sh_uloc.uMVP, 1, GL_FALSE, m_modelview_proj->data);
-    }
-    if (wes_matrix_mvit()){
-        wes_gl->glUniformMatrix3fv(sh_uloc.uMVIT, 1, GL_FALSE, m_modelview_it3);
-    }
-    wes_matrix_update();
+    wes_state_update();
 
     wes_gl->glEnableVertexAttribArray(WES_APOS);
     wes_gl->glVertexAttribPointer(WES_APOS, vt_possize, GL_FLOAT, GL_FALSE, sizeof(sVertexAttrib), vt_vbuffer);
@@ -325,6 +312,6 @@ wes_begin_init()
 GLvoid
 wes_begin_destroy()
 {
-    free(vt_vbuffer);
-    free(vt_ibuffer);
+    //free(vt_vbuffer);
+    //free(vt_ibuffer);
 }
