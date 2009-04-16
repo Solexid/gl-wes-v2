@@ -207,6 +207,7 @@ extern GLvoid   glUniformMatrix3fv(GLint location, GLsizei count, GLboolean tran
 extern GLvoid   glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, GLfloat *value);
 
 /* Light  */
+extern GLvoid   glLightf(GLenum light, GLenum pname, GLfloat params);
 extern GLvoid   glLightfv(GLenum light, GLenum pname, GLfloat *params);
 
 /* Fog  */
