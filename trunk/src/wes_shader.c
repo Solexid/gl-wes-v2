@@ -91,10 +91,12 @@ wes_setattribloc(GLuint prog)
     wes_gl->glBindAttribLocation(prog, WES_APOS,       "aPosition");
     wes_gl->glBindAttribLocation(prog, WES_ATEXCOORD0, "aTexCoord0");
     wes_gl->glBindAttribLocation(prog, WES_ATEXCOORD1, "aTexCoord1");
+    wes_gl->glBindAttribLocation(prog, WES_ATEXCOORD2, "aTexCoord2");
+    wes_gl->glBindAttribLocation(prog, WES_ATEXCOORD3, "aTexCoord3");
     wes_gl->glBindAttribLocation(prog, WES_ANORMAL,    "aNormal");
     wes_gl->glBindAttribLocation(prog, WES_AFOGCOORD,  "aFogCoord");
-    wes_gl->glBindAttribLocation(prog, WES_ACOLOR0, "aColor0");
-    wes_gl->glBindAttribLocation(prog, WES_ACOLOR1,    "aColor1");
+    wes_gl->glBindAttribLocation(prog, WES_ACOLOR0,     "aColor");
+    wes_gl->glBindAttribLocation(prog, WES_ACOLOR1,    "aColor2nd");
 }
 
 GLuint

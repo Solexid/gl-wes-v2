@@ -59,3 +59,4 @@ glTexImage2D(GLenum target, GLint level, GLenum internalFormat, GLsizei width, G
         wes_gl->glTexImage2D(target, level, format, width, height, 0, format, type, pixels);
     }
 }
+

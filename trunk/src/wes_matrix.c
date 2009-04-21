@@ -4,24 +4,23 @@
 #include <stdio.h>
 #include "wes.h"
 #include "wes_matrix.h"
+#include "wes_uniform.h"
 
 /* global variables */
-GLenum      m_mode;
-GLenum      m_activetexture;
-
-matrix4_t*  m_current;
+matrix4_t   *m_current;
 matrix4_t   m_modelview[WES_MODELVIEW_NUM];
 matrix4_t   m_projection[WES_PROJECTION_NUM];
 matrix4_t   m_texture[WES_TEXTURE_NUM * WES_TEXTURE_UNITS];
 matrix4_t   m_color[WES_COLOR_NUM];
 matrix4_t   m_modelview_proj[1];
 matrix4_t   m_modelview_it[1];
-GLfloat     m_modelview_it3[9];
+matrix3_t   m_modelview_normal[1];
 
+GLenum      m_mode;
 GLuint      m_modelview_num, m_projection_num, m_texture_num, m_color_num;
-GLboolean   m_modelview_mod;
-GLboolean   m_projection_mod;
+GLboolean   m_modelview_mod, m_projection_mod;
 
+#define M_DEGTORAD    (M_PI / 180.0f)
 
 /* internal functions   */
 GLvoid
@@ -31,6 +30,7 @@ wes_assign(GLfloat *in, matrix4_t *out)
     out->flags = WES_M_DIRTY;
 };
 
+/* Identify characteristics of matrix, stored in in->flags */
 GLvoid
 wes_classify(matrix4_t *in)
 {
@@ -59,8 +59,6 @@ wes_classify(matrix4_t *in)
     }
 }
 
-
-
 GLvoid
 wes_transpose2(GLfloat *in, GLfloat *out)
 {
@@ -85,13 +83,13 @@ wes_transpose4(GLfloat *in, GLfloat *out)
     out[12] = in[3]; out[13] = in[7]; out[14] = in[11]; out[15] = in[15];
 }
 
-
 GLvoid
 normalize3(GLfloat *v)
 {
     GLfloat r;
-    r = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    r = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
     if (r == 0.0) return;
+    r = sqrt(r);
     v[0] /= r;
     v[1] /= r;
     v[2] /= r;
@@ -130,18 +128,18 @@ GLvoid
 wes_identity4(matrix4_t *m)
 {
     m->flags = WES_M_IDENTITY;
-    m->data[1] = m->data[2] = m->data[3] = m->data[4] = 0.0;
-    m->data[6] = m->data[7] = m->data[8] = m->data[9] = 0.0;
-    m->data[11] = m->data[12] = m->data[13] = m->data[14] = 0.0;
-    m->data[0] = m->data[5] = m->data[10] = m->data[15] = 1.0;
+    m->data[1]  = m->data[2]  = m->data[3]  = m->data[4]  = 0.0f;
+    m->data[6]  = m->data[7]  = m->data[8]  = m->data[9]  = 0.0f;
+    m->data[11] = m->data[12] = m->data[13] = m->data[14] = 0.0f;
+    m->data[0]  = m->data[5]  = m->data[10] = m->data[15] = 1.0f;
 }
 
 GLvoid
-wes_mat4to3(GLfloat *in, GLfloat *out )
+wes_mat4to3(matrix4_t *in, matrix3_t *out )
 {
-    out[0] = in[0]; out[3] = in[4]; out[6] = in[8];
-    out[1] = in[1]; out[4] = in[5]; out[7] = in[9];
-    out[2] = in[2]; out[5] = in[6]; out[8] = in[10];
+    out->data[0] = in->data[0]; out->data[3] = in->data[4]; out->data[6] = in->data[8];
+    out->data[1] = in->data[1]; out->data[4] = in->data[5]; out->data[7] = in->data[9];
+    out->data[2] = in->data[2]; out->data[5] = in->data[6]; out->data[8] = in->data[10];
 }
 
 GLvoid
@@ -165,7 +163,7 @@ wes_rotate_xyz(GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
     GLfloat m0, m1, m2, m4, m5, m6, m8, m9, m10;
     GLfloat tmp[12];
 
-    angle *= M_PI / 180;
+    angle *= M_DEGTORAD;
     s = sin(angle);
     c = cos(angle);
 
@@ -234,7 +232,6 @@ wes_rotate_xyz(GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
         memcpy(m_current->data, tmp, 12 * sizeof(GLfloat));
     }
 
-
     if (!(m_current->flags & WES_M_DIRTY)){
         if (m_current->flags & WES_M_TRANSLATED){
             m_current->flags = WES_M_ROTATED | WES_M_TRANSLATED;
@@ -251,7 +248,7 @@ wes_rotate_z(GLfloat angle, GLfloat z)
     GLfloat m1, m4;
     GLfloat tmp[8];
 
-    angle *= (M_PI / 180);
+    angle *= M_DEGTORAD;
     s = sin(angle);
     c = cos(angle);
 
@@ -298,7 +295,7 @@ wes_rotate_y(GLfloat angle, GLfloat y)
     GLfloat m2, m8;
     GLfloat tmp[8];
 
-    angle *= M_PI / 180;
+    angle *= M_DEGTORAD;
     s = sin(angle);
     c = cos(angle);
 
@@ -347,7 +344,7 @@ wes_rotate_x(GLfloat angle, GLfloat x)
     GLfloat m6, m9;
     GLfloat tmp[8];
 
-    angle *= M_PI / 180;
+    angle *= M_DEGTORAD;
     s = sin(angle);
     c = cos(angle);
 
@@ -385,149 +382,58 @@ wes_rotate_x(GLfloat angle, GLfloat x)
         memcpy(m_current->data + 4, tmp, 8 * sizeof(GLfloat));
     }
 
+    m_current->flags &= ~WES_M_IDENTITY;
     m_current->flags |= WES_M_ROTATED;
 }
 
-
 GLvoid
-wes_invert_scaled(matrix4_t *in, matrix4_t *out)
+wes_normal_matrix(matrix4_t *in, matrix3_t *out)
 {
-    if (in->data[0] == 0 || in->data[5] || in->data[10] == 0){
-        return;
+    /* Extract rotation/scale components */
+    wes_mat4to3(in, out);
+
+    /* Non Angle preserving matrix: */
+    if (in->flags & WES_M_DIRTY || in->flags & WES_M_SCALED){
+
+        float r0[2][2];
+        float r1[2], r2[2], r3;
+        float det;
+
+        det = out->data[0*3+0] * out->data[1*3+1] - out->data[0*3+1] * out->data[1*3+0];
+        if (det == 0.0) {
+            return;
+        }
+
+        det = 1.0f / det;
+        r0[0][0] =   out->data[1*3+1] * det;
+        r0[0][1] = - out->data[0*3+1] * det;
+        r0[1][0] = - out->data[1*3+0] * det;
+        r0[1][1] =   out->data[0*3+0] * det;
+
+        r1[0] = r0[0][0] * out->data[0*3+2] + r0[0][1] * out->data[1*3+2];
+        r1[1] = r0[1][0] * out->data[0*3+2] + r0[1][1] * out->data[1*3+2];
+        r2[0] = r1[0] * out->data[2*3+0] + r1[1] * out->data[2*3+1];
+        r3 = r2[0] - out->data[2*3+2];
+
+        if (r3 == 0.0) {
+            return;
+        }
+
+        r3 = 1.0f / r3;
+        r2[0] = out->data[2*3+0] * r0[0][0] + out->data[2*3+1] * r0[1][0];
+        r2[1] = out->data[2*3+0] * r0[0][1] + out->data[2*3+1] * r0[1][1];
+
+        /* Transposed   */
+        out->data[2] = r3 * r2[0];
+        out->data[5] = r3 * r2[1];
+        out->data[0] = r0[0][0] - r1[0] * out->data[2];
+        out->data[1] = r0[1][0] - r1[1] * out->data[2];
+        out->data[3] = r0[0][1] - r1[0] * out->data[5];
+        out->data[4] = r0[1][1] - r1[1] * out->data[5];
+        out->data[6] = r1[0] * r3;
+        out->data[7] = r1[1] * r3;
+        out->data[8] = -r3;
     }
-    out->flags = WES_M_SCALED;
-    out->data[0] = (1.0 / in->data[0]);
-    out->data[1] = out->data[2] = out->data[3] = out->data[4] = 0.0;
-    out->data[5] = (1.0 / in->data[5]);
-    out->data[6] = out->data[7] = out->data[8] = out->data[9] = 0.0;
-    out->data[10] = (1.0 / in->data[10]);
-    out->data[11] = 0.0;
-    if (in->flags & WES_M_TRANSLATED){
-        out->flags |= WES_M_TRANSLATED;
-        out->data[12] = - (in->data[12] * out->data[0] + in->data[13]);
-        out->data[13] = - (in->data[13] * out->data[5]);
-        out->data[14] = - (in->data[13] * in->data[14] * out->data[10]);
-    } else {
-        out->data[12] = out->data[13] = out->data[14] = 0.0;
-    }
-    out->data[15] = 1.0;
-}
-
-GLvoid
-wes_invert_rotated(matrix4_t *in, matrix4_t *out)
-{
-    GLfloat det;
-
-    det = 0;
-    det += in->data[0] * in->data[5] * in->data[10];
-    det += in->data[1] * in->data[6] * in->data[8];
-    det += in->data[2] * in->data[4] * in->data[9];
-    det -= in->data[2] * in->data[5] * in->data[8];
-    det -= in->data[1] * in->data[4] * in->data[10];
-    det -= in->data[0] * in->data[6] * in->data[9];
-
-    if (det == 0){
-      return;
-    }
-
-    det = 1.0f / det;
-    out->flags = WES_M_ROTATED;
-    out->data[0] = + det * (in->data[5] * in->data[10] - in->data[6] * in->data[9]);
-    out->data[1] = - det * (in->data[1] * in->data[10] + in->data[2] * in->data[9]);
-    out->data[2] = + det * (in->data[1] * in->data[6] - in->data[2] * in->data[5]);
-    out->data[3] = 0.0;
-    out->data[4] = - det * (in->data[4] * in->data[10] + in->data[6] * in->data[8]);
-    out->data[5] = + det * (in->data[0] * in->data[10] - in->data[2] * in->data[8]);
-    out->data[6] = - det * (in->data[0] * in->data[6] - in->data[2] * in->data[4]);
-    out->data[7] = 0.0;
-    out->data[8] = + det * (in->data[4] * in->data[9] - in->data[5] * in->data[8]);
-    out->data[9] = - det * (in->data[0] * in->data[9] + in->data[1] * in->data[8]);
-    out->data[10] = + det * (in->data[0] * in->data[5] - in->data[1] * in->data[4]);
-    out->data[11] = 0.0;
-    if (in->flags & WES_M_TRANSLATED){
-        out->flags |= WES_M_TRANSLATED;
-        out->data[12] = - ((in->data[12] * out->data[0] + in->data[13]) * (out->data[4] + in->data[14] * out->data[8]));
-        out->data[13] = - ((in->data[12] * out->data[1] + in->data[13]) * (out->data[5] + in->data[14] * out->data[9]));
-        out->data[14] = - ((in->data[12] * out->data[2] + in->data[13]) * (out->data[6] + in->data[14] * out->data[10]));
-    } else {
-        out->data[12] = out->data[13] = out->data[14] = 0.0;
-    }
-    out->data[15] = 1.0;
-}
-
-GLvoid
-wes_invert_general(matrix4_t *in, matrix4_t *out)
-{
-    GLfloat tmp[12];
-    GLfloat det;
-    tmp[0] = in->data[0] * in->data[5] - in->data[4] * in->data[1];
-    tmp[1] = in->data[0] * in->data[9] - in->data[8] * in->data[1];
-    tmp[2] = in->data[0] * in->data[13] - in->data[12] * in->data[1];
-    tmp[3] = in->data[4] * in->data[9] - in->data[8] * in->data[5];
-    tmp[4] = in->data[4] * in->data[13] - in->data[12] * in->data[5];
-    tmp[5] = in->data[8] * in->data[13] - in->data[12] * in->data[9];
-    tmp[6] = in->data[2] * in->data[7] - in->data[6] * in->data[3];
-    tmp[7] = in->data[2] * in->data[11] - in->data[10] * in->data[3];
-    tmp[8] = in->data[2] * in->data[15] - in->data[14] * in->data[3];
-    tmp[9] = in->data[6] * in->data[11] - in->data[10] * in->data[7];
-    tmp[10] = in->data[6] * in->data[15] - in->data[14] * in->data[7];
-    tmp[11] = in->data[10] * in->data[15] - in->data[14] * in->data[11];
-
-    det = tmp[0] * tmp[11] - tmp[1] * tmp[10] + tmp[2] * tmp[9] + tmp[3] * tmp[8] - tmp[4] * tmp[7] + tmp[5] * tmp[6];
-    if (det == 0.0)
-    {
-        return;
-    }
-    det = 1.0 / det;
-
-    out->data[0] = + det * (in->data[5] * tmp[11] - in->data[9] * tmp[10] + in->data[13] * tmp[9]);
-    out->data[1] = - det * (in->data[1] * tmp[11] + in->data[9] * tmp[8] - in->data[13] * tmp[7]);
-    out->data[2] = + det * (in->data[1] * tmp[10] - in->data[5] * tmp[8] + in->data[13] * tmp[6]);
-    out->data[3] = - det * (in->data[1] * tmp[9] + in->data[5] * tmp[7] - in->data[9] * tmp[6]);
-    out->data[4] = - det * (in->data[4] * tmp[11] + in->data[8] * tmp[10] - in->data[12] * tmp[9]);
-    out->data[5] = + det * (in->data[0] * tmp[11] - in->data[8] * tmp[8] + in->data[12] * tmp[7]);
-    out->data[6] = - det * (in->data[0] * tmp[10] + in->data[4] * tmp[8] - in->data[12] * tmp[6]);
-    out->data[7] = + det * (in->data[0] * tmp[9] - in->data[4] * tmp[7] + in->data[8] * tmp[6]);
-    out->data[8] = + det * (in->data[7] * tmp[5] - in->data[11] * tmp[4] + in->data[15] * tmp[3]);
-    out->data[9] = - det * (in->data[3] * tmp[5] + in->data[11] * tmp[2] - in->data[15] * tmp[1]);
-    out->data[10] = + det * (in->data[3] * tmp[4] - in->data[7] * tmp[2] + in->data[15] * tmp[0]);
-    out->data[11] = - det * (in->data[3] * tmp[3] + in->data[7] * tmp[1] - in->data[11] * tmp[0]);
-    out->data[12] = - det * (in->data[6] * tmp[5] + in->data[10] * tmp[4] - in->data[14] * tmp[3]);
-    out->data[13] = + det * (in->data[2] * tmp[5] - in->data[10] * tmp[2] + in->data[14] * tmp[1]);
-    out->data[14] = - det * (in->data[2] * tmp[4] + in->data[6] * tmp[2] - in->data[14] * tmp[0]);
-    out->data[15] = + det * (in->data[2] * tmp[3] - in->data[6] * tmp[1] + in->data[10] * tmp[0]);
-}
-
-GLvoid
-wes_invert(matrix4_t *in, matrix4_t *out)
-{
-    if (in->flags == WES_M_IDENTITY){
-        *out = *in;
-    } else if (in->flags == WES_M_SCALED || in->flags == (WES_M_SCALED|WES_M_TRANSLATED)){
-        wes_invert_scaled(in, out);
-    } else if (in->flags == WES_M_ROTATED || in->flags == (WES_M_ROTATED|WES_M_TRANSLATED)){
-        wes_invert_rotated(in, out);
-    } else {
-        wes_invert_general(in, out);
-    }
-}
-
-GLvoid
-wes_inverttranspose(matrix4_t *in, matrix4_t *out)
-{
-    /*if (in->flags == WES_M_IDENTITY || in->flags == (WES_M_IDENTITY|WES_M_TRANSLATED)){
-        *out = *in;
-    } else if (in->flags == WES_M_SCALED || in->flags == (WES_M_SCALED|WES_M_TRANSLATED)){
-        matrix4_t tmp[1];
-        wes_invert_scaled(in, tmp);
-        wes_transpose4(tmp->data, out->data);
-    } else if (in->flags == WES_M_ROTATED || in->flags == (WES_M_ROTATED|WES_M_TRANSLATED)){
-        *out = *in;
-    } else {*/
-        matrix4_t tmp[1];
-        wes_invert_general(in, tmp);
-        wes_transpose4(tmp->data, out->data);
-    //}
 }
 
 GLvoid
@@ -556,7 +462,6 @@ wes_matvec4(matrix4_t *m, GLfloat *v, GLfloat *mv)
 GLvoid
 wes_matrix_init()
 {
-    //Set all matrices to identity:
     int i;
     for(i = 0; i < WES_MODELVIEW_NUM; i++){
         wes_identity4(&m_modelview[i]);
@@ -614,11 +519,10 @@ wes_matrix_fprintf(FILE* f, matrix4_t *in)
 }
 
 GLboolean
-wes_matrix_mvit()
+wes_matrix_normal()
 {
     if (m_modelview_mod){
-        wes_inverttranspose(m_modelview, m_modelview_it);
-        wes_mat4to3(m_modelview_it->data, m_modelview_it3);
+        wes_normal_matrix(m_modelview, m_modelview_normal);
         return 1;
     } else {
         return 0;
@@ -687,9 +591,9 @@ glMatrixMode(GLenum mode)
     {
         case GL_MODELVIEW:  m_current = m_modelview; break;
         case GL_PROJECTION: m_current = m_projection; break;
-        case GL_TEXTURE:    m_current = &m_texture[m_activetexture * WES_TEXTURE_NUM]; break;
+        case GL_TEXTURE:    m_current = &m_texture[u_activetex * WES_TEXTURE_NUM]; break;
         case GL_COLOR:      m_current = m_color; break;
-        default: break;
+        default:            break;
     }
 }
 
@@ -751,6 +655,8 @@ glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
     if (x == 0.0f && y == 0.0f && z == 0.0f){
         return;
     }
+
+    /* use optimised routines for single axis rotations     */
     if (x == 0.0f){
         if (y == 0.0f){
             wes_rotate_z(angle, z);
@@ -1011,12 +917,7 @@ glPopMatrix()
     }
 }
 
-GLvoid
-glActiveTexture(GLenum texture)
-{
-    m_activetexture = texture;
-    wes_gl->glActiveTexture(texture);
-}
+
 
 GLvoid
 gluOrtho2D(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top)

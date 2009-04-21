@@ -9,32 +9,29 @@
 #define WES_BUFFER_COUNT        (8000)
 #define WES_INDEX_COUNT         (8000)
 
-//offsets within VertexAttrib struct
+//offsets within Vertex struct
 #define WES_OFFSET_VERT        0
-#define WES_OFFSET_TEXCOORD0   4
-#define WES_OFFSET_TEXCOORD1   8
-#define WES_OFFSET_NORMAL      12
-#define WES_OFFSET_FOGCOORD    15
-#define WES_OFFSET_COLOR0      16
-#define WES_OFFSET_COLOR1      20
+#define WES_OFFSET_NORMAL      4
+#define WES_OFFSET_FOGCOORD    7
+#define WES_OFFSET_COLOR0      8
+#define WES_OFFSET_COLOR1      12
+#define WES_OFFSET_TEXCOORD0   15
+#define WES_OFFSET_TEXCOORD1   19
+#define WES_OFFSET_TEXCOORD2   23
+#define WES_OFFSET_TEXCOORD3   27
 
-//Structures:
-typedef struct sVertexAttrib sVertexAttrib;
-struct sVertexAttrib {
+typedef struct vertex_s vertex_t;
+
+struct vertex_s {
     GLfloat x, y, z, w;             //Position , 2-4 elements
-    GLfloat s0, t0, r0, q0;         //TexCoord0, 2-4 elements
-    GLfloat s1, t1, r1, q1;         //TexCoord1, 2-4 elements (for 2x multitexturing support)
     GLfloat nx, ny, nz;             //Normal, 3 elements
     GLfloat fog;                    //Fog Coordinate, 1 element.
     GLfloat cr0, cg0, cb0, ca0;     //Color, 3-4 elements
     GLfloat cr1, cg1, cb1;          //Secondary Color, 3 elements
+    struct {
+        GLfloat s, t, r, q;
+    } coord[4];
 };
-
-typedef struct sRenderState sRenderState;
-struct sRenderState {
-
-};
-
 
 //function declarations:
 extern GLvoid wes_begin_init();
