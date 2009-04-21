@@ -60,3 +60,19 @@ glTexImage2D(GLenum target, GLint level, GLenum internalFormat, GLsizei width, G
     }
 }
 
+GLvoid
+wes_halveimage(GLint width, GLint height, GLenum format, GLenum type, const GLvoid* pixels)
+{
+
+
+
+
+}
+
+
+GLvoid
+gluBuild2DMipmaps(GLenum target, GLint levelmax, GLenum internalFormat, GLsizei width, GLsizei height,
+                  GLint border, GLenum format, GLenum type, const GLvoid *pixels )
+{
+    glTexImage2D(target, 0, internalFormat, width, height, border, format, type, pixels);
+}

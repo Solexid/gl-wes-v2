@@ -1,8 +1,9 @@
 
 /* Defines to Enable and disable features	*/
 //#define DEF_ALPHA_TEST
+//#define DEF_TEXTURE
 //#define DEF_MULTI_TEXTURE
-//#define DEF_FOG
+#define DEF_FOG
 //#define DEF_CLIPPLANE
 
 #define LIGHT_NUM						8
@@ -195,6 +196,8 @@ void ApplyTex(int i){
 void main(){
 	int i;
 
+
+#ifdef DEF_TEXTURE
 #ifdef DEF_MULTI_TEXTURE
 	gl_FragColor = vColor;	
 	for(i = 0; i < MULTITEX_NUM; i++){
@@ -204,7 +207,10 @@ void main(){
 	};
 #else
 	gl_FragColor = vColor * texture2D(uTexture[0].Unit, vTexCoord[0].xy);
-#endif
+#endif	//MULTI_TEXTURE
+#else
+	gl_FragColor = vColor;
+#endif	//TEXTURE
 
 #ifdef DEF_FOG
 	if (uEnableFog){

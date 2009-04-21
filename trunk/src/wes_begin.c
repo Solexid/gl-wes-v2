@@ -16,6 +16,7 @@ GLuint          vt_ibuffer_count;
 vertex_t        vt_current[1];
 GLuint          vt_possize, vt_color0size, vt_color1size,
                 vt_coordsize[4], vt_normalsize, vt_fogcoordsize;
+
 GLvoid
 wes_reset()
 {
@@ -27,7 +28,7 @@ wes_reset()
     vt_current->nx = 1.0f;
     vt_current->ny = vt_current->nz = 0.0f;
     vt_current->fog = 0.0f;
-    vt_current->cr0 = vt_current->cg0 = vt_current->cb0 = 0.0f;
+    vt_current->cr0 = vt_current->cg0 = vt_current->cb0 = 1.0f;
     vt_current->ca0 = 1.0f;
     vt_current->cr1 = vt_current->cg1 = vt_current->cb1 = 0.0f;
     for(i = 0 ; i != 4; i++){
@@ -36,7 +37,7 @@ wes_reset()
     }
 }
 
-//functions:
+
 GLvoid
 wes_vertbuffer_flush()
 {
@@ -152,7 +153,6 @@ glBegin(GLenum mode)
     wes_gl->glVertexAttrib3f(WES_ACOLOR1, vt_current->cr1, vt_current->cg1, vt_current->cb1);
 }
 
-//Vertex specification:
 //glVertex
 GLvoid
 glVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)

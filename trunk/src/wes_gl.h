@@ -151,6 +151,7 @@
 #define glVertexAttribPointer		wes_gl->glVertexAttribPointer
 #define glViewport                  wes_gl->glViewport
 
+#define glShadeModel(A)
 
 extern GLvoid glEnable(GLenum e);
 extern GLvoid glDisable(GLenum e);
@@ -166,10 +167,19 @@ extern GLvoid   glEnd();
 extern GLvoid   glVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w);
 extern GLvoid   glVertex3f(GLfloat x, GLfloat y, GLfloat z);
 extern GLvoid   glVertex2f(GLfloat x, GLfloat y);
+#define         glVertex4d(x, y, z, w)      glVertex4f((GLfloat)(x), (GLfloat)(y), (GLfloat)(z), (GLfloat)(w))
+#define         glVertex3d(x, y, z, w)      glVertex3f((GLfloat)(x), (GLfloat)(y), (GLfloat)(z))
+#define         glVertex2d(x, y, z, w)      glVertex2f((GLfloat)(x), (GLfloat)(y))
+
 extern GLvoid   glTexCoord4f(GLfloat s, GLfloat t, GLfloat r, GLfloat q);
 extern GLvoid   glTexCoord3f(GLfloat s, GLfloat t, GLfloat r);
 extern GLvoid   glTexCoord2f(GLfloat s, GLfloat t);
 extern GLvoid   glTexCoord1f(GLfloat s);
+#define         glTexCoord4d(x, y, z, w)    glTexCoord4f((GLfloat)(x), (GLfloat)(y), (GLfloat)(z), (GLfloat)(w))
+#define         glTexCoord3d(x, y, z)       glTexCoord3f((GLfloat)(x), (GLfloat)(y), (GLfloat)(z))
+#define         glTexCoord2d(x, y)          glTexCoord2f((GLfloat)(x), (GLfloat)(y))
+
+
 extern GLvoid   glMultiTexCoord4f(GLenum tex, GLfloat s, GLfloat t, GLfloat r, GLfloat q);
 extern GLvoid   glMultiTexCoord3f(GLenum tex, GLfloat s, GLfloat t, GLfloat r);
 extern GLvoid   glMultiTexCoord2f(GLenum tex, GLfloat s, GLfloat t);
