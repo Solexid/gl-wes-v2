@@ -201,9 +201,11 @@ vec4 ComputeLightFrom(int i){
 		}
 	}
 	
-	ndotl = max(0.0, dot(lNormal, dpos));
 	col = (uLight[i].ColorAmbient * lMaterialAmbient);
-	col += ndotl * (uLight[i].ColorDiffuse * lMaterialDiffuse);
+	ndotl = dot(lNormal, dpos);
+	if (ndotl > 0.0){
+		col += ndotl * (uLight[i].ColorDiffuse * lMaterialDiffuse);
+	}
 	
 	dpos.z += 1.0;
 	dpos = normalize(dpos);

@@ -91,11 +91,11 @@
     u_state.A.v[1] = P[1];                                       \
     u_state.A.v[2] = P[2];
 #define SetUniform4fv(A, P)                                         \
-    u_state.A.mod = GL_TRUE;                                     \
-    u_state.A.v[0] = P[0];                                       \
-    u_state.A.v[1] = P[1];                                       \
-    u_state.A.v[2] = P[2];                                       \
-    u_state.A.v[3] = P[3];
+    u_state. A .mod = GL_TRUE;                                     \
+    u_state. A .v[0] = P[0];                                       \
+    u_state. A .v[1] = P[1];                                       \
+    u_state. A .v[2] = P[2];                                       \
+    u_state. A .v[3] = P[3];
 
 uniforms_t      u_state;
 GLenum          u_activetex;
@@ -423,12 +423,14 @@ glLightfv(GLenum light, GLenum pname, GLfloat *params)
             SetUniform4fv(uLight[ind].ColorDiffuse, params); break;
         case GL_SPECULAR:
             SetUniform4fv(uLight[ind].ColorSpec, params); break;
+
         case GL_POSITION:{
             GLfloat tmp[4];
             wes_matvec4(m_modelview, params, tmp);
-            SetUniform4fv(uLight[ind].Position, params);
+            SetUniform4fv(uLight[ind].Position, tmp);
             break;
         }
+
         case GL_SPOT_DIRECTION:{
             GLfloat tmp[4];
             wes_matvec4(m_modelview, params, tmp);
