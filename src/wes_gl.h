@@ -171,6 +171,9 @@ extern GLvoid   glTexCoord3f(GLfloat s, GLfloat t, GLfloat r);
 extern GLvoid   glTexCoord2f(GLfloat s, GLfloat t);
 extern GLvoid   glTexCoord1f(GLfloat s);
 extern GLvoid   glMultiTexCoord4f(GLenum tex, GLfloat s, GLfloat t, GLfloat r, GLfloat q);
+extern GLvoid   glMultiTexCoord3f(GLenum tex, GLfloat s, GLfloat t, GLfloat r);
+extern GLvoid   glMultiTexCoord2f(GLenum tex, GLfloat s, GLfloat t);
+extern GLvoid   glMultiTexCoord1f(GLenum tex, GLfloat s);
 extern GLvoid   glNormal3f(GLfloat x, GLfloat y, GLfloat z);
 extern GLvoid   glFogCoordf(GLfloat f);
 extern GLvoid   glColor4f(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
@@ -187,10 +190,10 @@ extern GLvoid   glFogCoordPointer(GLenum type, GLsizei stride, const GLvoid *ptr
 
 /*  Coordinate Transformations  */
 extern GLvoid   glMatrixMode(GLenum mode);
-extern GLvoid   glLoadMatrixf(GLfloat* m);
-extern GLvoid   glLoadMatrixTransposef(GLfloat* m);
-extern GLvoid   glMultMatrixf(GLfloat* m);
-extern GLvoid   glMultMatrixTransposef(GLfloat* m);
+extern GLvoid   glLoadMatrixf(GLfloat *m);
+extern GLvoid   glLoadMatrixTransposef(GLfloat *m);
+extern GLvoid   glMultMatrixf(GLfloat *m);
+extern GLvoid   glMultMatrixTransposef(GLfloat *m);
 extern GLvoid   glLoadIdentity();
 extern GLvoid   glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
 extern GLvoid   glTranslatef(GLfloat x, GLfloat y, GLfloat z);
@@ -209,6 +212,10 @@ extern GLvoid   glUniformMatrix4fv(GLint location, GLsizei count, GLboolean tran
 /* Light  */
 extern GLvoid   glLightf(GLenum light, GLenum pname, GLfloat params);
 extern GLvoid   glLightfv(GLenum light, GLenum pname, GLfloat *params);
+extern GLvoid   glLightModeli(GLenum pname, GLint params);
+extern GLvoid   glLightModelfv(GLenum pname, GLfloat *params);
+extern GLvoid   glMaterialf(GLenum face, GLenum pname, GLfloat params);
+extern GLvoid   glMaterialfv(GLenum face, GLenum pname, GLfloat *params);
 
 /* Fog  */
 extern GLvoid   glFogi(GLenum pname, GLint param);

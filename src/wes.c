@@ -202,6 +202,16 @@ wes_init()
     wes_matrix_init();
     wes_state_init();
     wes_begin_init();
+
+    GLint n;
+    wes_gl->glGetProgramiv(sh_program, GL_ACTIVE_UNIFORMS, &n);
+    printf("Number of Active uniforms: %i \n", n);
+
+    wes_gl->glGetIntegerv(0x8DFB, &n);
+    printf("Max vertex uniform vectors: %i \n", n);
+    wes_gl->glGetIntegerv(0x8DFD, &n);
+    printf("Max frag uniform vectors: %i \n", n);
+
 }
 
 GLvoid

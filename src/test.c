@@ -5,8 +5,8 @@
 #include <EGL/egl.h>
 #include "wes_gl.h"
 #include "wes_glu.h"
-
 #include "wes_matrix.h"
+
 
 GLfloat     xrot = 45, yrot, zrot;
 GLfloat     x = 0, y = 0, z = -5.0;
@@ -230,59 +230,65 @@ draw()
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     /* Move Into The Screen 5 Units */
-    glLoadIdentity();
-    //glLightfv(GL_LIGHT1, GL_POSITION, lightpos);				// Setup The Ambient Light
+    glLightfv(GL_LIGHT1, GL_POSITION, lightpos);				// Setup The Ambient Light
 
-    glTranslatef( x, y, z );
+    int i,j;
+    for(i = -1; i < 1; i++){
+        for(j = -1; j < 1; j++){
+            glLoadIdentity();
+            glTranslatef( x + i * 3, y + j * 3, z );
 
-    glRotatef( xrot, 1.0f, 0.0f, 0.0f); /* Rotate On The X Axis */
-    glRotatef( yrot, 0.0f, 1.0f, 0.0f); /* Rotate On The Y Axis */
-    glRotatef( zrot, 0.0f, 0.0f, 1.0f); /* Rotate On The Z Axis */
-    glScalef(1.5,1.5,1.0);
+            glRotatef( xrot, 1.0f, 0.0f, 0.0f); /* Rotate On The X Axis */
+            glRotatef( yrot, 0.0f, 1.0f, 0.0f); /* Rotate On The Y Axis */
+            glRotatef( zrot, 0.0f, 0.0f, 1.0f); /* Rotate On The Z Axis */
+            //glScalef(1.5,1.5,1.0);
 
-    /* Select Our Texture */
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
+            /* Select Our Texture */
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texture);
 
-    glColor3f(1,1,1);
-    glBegin(GL_QUADS);
+            glColor3f(1,1,1);
+            glBegin(GL_QUADS);
 
-      glNormal3f( 0.0f, 0.0f, 1.0f );
-      glTexCoord2f( 1.0f, 0.0f ); glVertex3f( -1.0f, -1.0f,  1.0f );
-      glTexCoord2f( 0.0f, 0.0f ); glVertex3f(  1.0f, -1.0f,  1.0f );
-      glTexCoord2f( 0.0f, 1.0f ); glVertex3f(  1.0f,  1.0f,  1.0f );
-      glTexCoord2f( 1.0f, 1.0f ); glVertex3f( -1.0f,  1.0f,  1.0f );
+              glNormal3f( 0.0f, 0.0f, 1.0f );
+              glTexCoord2f( 1.0f, 0.0f ); glVertex3f( -1.0f, -1.0f,  1.0f );
+              glTexCoord2f( 0.0f, 0.0f ); glVertex3f(  1.0f, -1.0f,  1.0f );
+              glTexCoord2f( 0.0f, 1.0f ); glVertex3f(  1.0f,  1.0f,  1.0f );
+              glTexCoord2f( 1.0f, 1.0f ); glVertex3f( -1.0f,  1.0f,  1.0f );
 
-      glNormal3f( 0.0f, 0.0f, -1.0f);
-      glTexCoord2f( 0.0f, 0.0f ); glVertex3f( -1.0f, -1.0f, -1.0f );
-      glTexCoord2f( 0.0f, 1.0f ); glVertex3f( -1.0f,  1.0f, -1.0f );
-      glTexCoord2f( 1.0f, 1.0f ); glVertex3f(  1.0f,  1.0f, -1.0f );
-      glTexCoord2f( 1.0f, 0.0f ); glVertex3f(  1.0f, -1.0f, -1.0f );
+              glNormal3f( 0.0f, 0.0f, -1.0f);
+              glTexCoord2f( 0.0f, 0.0f ); glVertex3f( -1.0f, -1.0f, -1.0f );
+              glTexCoord2f( 0.0f, 1.0f ); glVertex3f( -1.0f,  1.0f, -1.0f );
+              glTexCoord2f( 1.0f, 1.0f ); glVertex3f(  1.0f,  1.0f, -1.0f );
+              glTexCoord2f( 1.0f, 0.0f ); glVertex3f(  1.0f, -1.0f, -1.0f );
 
-      glNormal3f( 0.0f, 1.0f, 0.0f );
-      glTexCoord2f( 1.0f, 1.0f ); glVertex3f( -1.0f,  1.0f, -1.0f );
-      glTexCoord2f( 1.0f, 0.0f ); glVertex3f( -1.0f,  1.0f,  1.0f );
-      glTexCoord2f( 0.0f, 0.0f ); glVertex3f(  1.0f,  1.0f,  1.0f );
-      glTexCoord2f( 0.0f, 1.0f ); glVertex3f(  1.0f,  1.0f, -1.0f );
+              glNormal3f( 0.0f, 1.0f, 0.0f );
+              glTexCoord2f( 1.0f, 1.0f ); glVertex3f( -1.0f,  1.0f, -1.0f );
+              glTexCoord2f( 1.0f, 0.0f ); glVertex3f( -1.0f,  1.0f,  1.0f );
+              glTexCoord2f( 0.0f, 0.0f ); glVertex3f(  1.0f,  1.0f,  1.0f );
+              glTexCoord2f( 0.0f, 1.0f ); glVertex3f(  1.0f,  1.0f, -1.0f );
 
-      glNormal3f( 0.0f, -1.0f, 0.0f );
-      glTexCoord2f( 0.0f, 1.0f ); glVertex3f( -1.0f, -1.0f, -1.0f );
-      glTexCoord2f( 1.0f, 1.0f ); glVertex3f(  1.0f, -1.0f, -1.0f );
-      glTexCoord2f( 1.0f, 0.0f ); glVertex3f(  1.0f, -1.0f,  1.0f );
-      glTexCoord2f( 0.0f, 0.0f ); glVertex3f( -1.0f, -1.0f,  1.0f );
+              glNormal3f( 0.0f, -1.0f, 0.0f );
+              glTexCoord2f( 0.0f, 1.0f ); glVertex3f( -1.0f, -1.0f, -1.0f );
+              glTexCoord2f( 1.0f, 1.0f ); glVertex3f(  1.0f, -1.0f, -1.0f );
+              glTexCoord2f( 1.0f, 0.0f ); glVertex3f(  1.0f, -1.0f,  1.0f );
+              glTexCoord2f( 0.0f, 0.0f ); glVertex3f( -1.0f, -1.0f,  1.0f );
 
-      glNormal3f( 1.0f, 0.0f, 0.0f);
-      glTexCoord2f( 0.0f, 0.0f ); glVertex3f( 1.0f, -1.0f, -1.0f );
-      glTexCoord2f( 0.0f, 1.0f ); glVertex3f( 1.0f,  1.0f, -1.0f );
-      glTexCoord2f( 1.0f, 1.0f ); glVertex3f( 1.0f,  1.0f,  1.0f );
-      glTexCoord2f( 1.0f, 0.0f ); glVertex3f( 1.0f, -1.0f,  1.0f );
+              glNormal3f( 1.0f, 0.0f, 0.0f);
+              glTexCoord2f( 0.0f, 0.0f ); glVertex3f( 1.0f, -1.0f, -1.0f );
+              glTexCoord2f( 0.0f, 1.0f ); glVertex3f( 1.0f,  1.0f, -1.0f );
+              glTexCoord2f( 1.0f, 1.0f ); glVertex3f( 1.0f,  1.0f,  1.0f );
+              glTexCoord2f( 1.0f, 0.0f ); glVertex3f( 1.0f, -1.0f,  1.0f );
 
-      glNormal3f( -1.0f, 0.0f, 0.0f );
-      glTexCoord2f( 1.0f, 0.0f ); glVertex3f( -1.0f, -1.0f, -1.0f );
-      glTexCoord2f( 0.0f, 0.0f ); glVertex3f( -1.0f, -1.0f,  1.0f );
-      glTexCoord2f( 0.0f, 1.0f ); glVertex3f( -1.0f,  1.0f,  1.0f );
-      glTexCoord2f( 1.0f, 1.0f ); glVertex3f( -1.0f,  1.0f, -1.0f );
-    glEnd( );
+              glNormal3f( -1.0f, 0.0f, 0.0f );
+              glTexCoord2f( 1.0f, 0.0f ); glVertex3f( -1.0f, -1.0f, -1.0f );
+              glTexCoord2f( 0.0f, 0.0f ); glVertex3f( -1.0f, -1.0f,  1.0f );
+              glTexCoord2f( 0.0f, 1.0f ); glVertex3f( -1.0f,  1.0f,  1.0f );
+              glTexCoord2f( 1.0f, 1.0f ); glVertex3f( -1.0f,  1.0f, -1.0f );
+            glEnd( );
+            }
+    }
+
     xrot += 0.3 * delta; /* X Axis Rotation */
     yrot += 0.2 * delta; /* Y Axis Rotation */
     zrot += 0.4 * delta; /* Z Axis Rotation */
@@ -322,34 +328,40 @@ main(int argc, char* argv[])
     glDepthRangef(0, 1.0);
     glViewport(0, 0, 640, 480);
 
-
-    GLfloat col[] = {1.0,1.0,1.0,1.0};
+    GLfloat col[] = {0.0,0.0,0.0,0.0};
     glFogi(GL_FOG_COORD_SRC, 0);		// Fog Mode
     glFogi(GL_FOG_MODE, GL_LINEAR);		// Fog Mode
     glFogfv(GL_FOG_COLOR, col);			// Set Fog Color
     glFogf(GL_FOG_DENSITY, 0.515f);				// How Dense Will The Fog Be
     glFogf(GL_FOG_START, 5.0f);				// Fog Start Depth
     glFogf(GL_FOG_END, 10.0f);				// Fog End Depth
-    //glEnable(GL_FOG);					// Enables GL_FOG
+    glEnable(GL_FOG);					// Enables GL_FOG
 
     GLfloat amb[] = {0,0,0,0};
     GLfloat diff[] = {1,1,1,1};
     glLightfv(GL_LIGHT1, GL_AMBIENT, amb);				// Setup The Ambient Light
     glLightfv(GL_LIGHT1, GL_DIFFUSE, diff);				// Setup The Ambient Light
     glLightfv(GL_LIGHT1, GL_POSITION, lightpos);				// Setup The Ambient Light
-    glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0);				// Setup The Ambient Light
+    glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0.05);				// Setup The Ambient Light
     glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.0);				// Setup The Ambient Light
-    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.0);				// Setup The Ambient Light
+    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.05);				// Setup The Ambient Light
+
+    col[0] = 0.01;
+    col[1] = 0.01;
+    col[2] = 0.01;
+    col[3] = 1.00;
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, col);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, col);
 
     glEnable(GL_LIGHT1);
     glEnable(GL_LIGHTING);
-    glEnable(GL_NORMALIZE);
 
     glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(45.0f, 640.0 / 480.0, 0.1f, 100.0f);
 
 	glMatrixMode(GL_MODELVIEW);
+
 
     if (!LoadGLTextures()){
         PRINT_ERROR("hmmm");

@@ -7,15 +7,16 @@
 #ifndef __WES_SHADER_H__
 #define __WES_SHADER_H__
 
-//attribute indices:
 #define WES_APOS             0
-#define WES_ATEXCOORD0       1
-#define WES_ATEXCOORD1       2
-#define WES_ANORMAL          3
-#define WES_AFOGCOORD        4
-#define WES_ACOLOR0          5
-#define WES_ACOLOR1          6
-#define WES_ANUM             7
+#define WES_ANORMAL          1
+#define WES_AFOGCOORD        2
+#define WES_ACOLOR0          3
+#define WES_ACOLOR1          4
+#define WES_ATEXCOORD0       5
+#define WES_ATEXCOORD1       6
+#define WES_ATEXCOORD2       7
+#define WES_ATEXCOORD3       8
+#define WES_ANUM             9
 
 extern GLuint       sh_program;
 extern GLuint       sh_fragment;

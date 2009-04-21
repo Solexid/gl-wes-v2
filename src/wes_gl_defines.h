@@ -2,6 +2,38 @@
 #ifndef __WES_GL_DEFINES_H__
 #define __WES_GL_DEFINES_H__
 
+/* Tex env */
+#define GL_TEXTURE_ENV                          0x2300
+#define GL_TEXTURE_ENV_MODE                     0x2200
+#define GL_TEXTURE_ENV_COLOR                    0x2201
+#define GL_DECAL                                0x2101
+#define GL_MODULATE                             0x2100
+#define GL_ADD                                  0x0104
+#define GL_COMBINE                              0x8570
+#define GL_COMBINE_RGB                          0x8571
+#define GL_COMBINE_ALPHA                        0x8572
+#define GL_SOURCE0_RGB                          0x8580
+#define GL_SOURCE1_RGB                          0x8581
+#define GL_SOURCE2_RGB                          0x8582
+#define GL_SOURCE0_ALPHA                        0x8588
+#define GL_SOURCE1_ALPHA                        0x8589
+#define GL_SOURCE2_ALPHA                        0x858A
+#define GL_OPERAND0_RGB                         0x8590
+#define GL_OPERAND1_RGB                         0x8591
+#define GL_OPERAND2_RGB                         0x8592
+#define GL_OPERAND0_ALPHA                       0x8598
+#define GL_OPERAND1_ALPHA                       0x8599
+#define GL_OPERAND2_ALPHA                       0x859A
+#define GL_RGB_SCALE                            0x8573
+#define GL_ADD_SIGNED                           0x8574
+#define GL_INTERPOLATE                          0x8575
+#define GL_SUBTRACT                             0x84E7
+#define GL_CONSTANT                             0x8576
+#define GL_PRIMARY_COLOR                        0x8577
+#define GL_PREVIOUS                             0x8578
+#define GL_DOT3_RGB                             0x86AE
+#define GL_DOT3_RGBA                            0x86AF
+
 /* pixel format */
 #define GL_BGR                                  0x80E0
 #define GL_BGRA                                 0x80E1
@@ -90,6 +122,19 @@
 #define GL_TEXTURE_GEN_T                        0x0C61
 #define GL_TEXTURE_GEN_R                        0x0C62
 #define GL_TEXTURE_GEN_Q                        0x0C63
+#define GL_TEXTURE_GEN_MODE                     0x2500
+
+#define GL_REFLECTION_MAP                       0x8512
+#define GL_OBJECT_LINEAR                        0x2401
+#define GL_OBJECT_PLANE                         0x2501
+#define GL_EYE_LINEAR                           0x2400
+#define GL_EYE_PLANE                            0x2502
+#define GL_SPHERE_MAP                           0x2402
+
+#define GL_S                                    0x2000
+#define GL_T                                    0x2001
+#define GL_R                                    0x2002
+#define GL_Q                                    0x2003
 
 /* OpenGL ES 2.0 defines */
 typedef void            GLvoid;

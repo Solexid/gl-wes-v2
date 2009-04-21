@@ -7,39 +7,33 @@
 #include "wes_matrix.h"
 #include "wes_uniform.h"
 
-#define WES_MODE_NONE       0
-
 GLenum          vt_mode;
 GLuint          vt_count;
-sVertexAttrib   vt_vbuffer[WES_BUFFER_COUNT];
+vertex_t        vt_vbuffer[WES_BUFFER_COUNT];
 GLuint          vt_vbuffer_count;
 GLshort         vt_ibuffer[WES_INDEX_COUNT];
 GLuint          vt_ibuffer_count;
-sVertexAttrib   vt_current[1];
+vertex_t        vt_current[1];
 GLuint          vt_possize, vt_color0size, vt_color1size,
-                vt_texcoord0size, vt_texcoord1size,
-                vt_normalsize, vt_fogcoordsize;
-
-struct sRenderState     vt_state[1];
-struct sRenderState     vt_state_next[1];
-GLboolean               vt_state_changed;
-
-const sVertexAttrib initialconst = {
-    0.0, 0.0, 0.0, 1.0,
-    0.0, 0.0, 0.0, 1.0,
-    0.0, 0.0, 0.0, 1.0,
-    1.0, 0.0, 0.0,
-    0.0,
-    0.0, 0.0, 0.0, 1.0,
-    0.0, 0.0, 0.0
-    };
-
+                vt_coordsize[4], vt_normalsize, vt_fogcoordsize;
 GLvoid
 wes_reset()
 {
-    vt_mode = WES_MODE_NONE;
+    int i;
+    vt_mode = 0;
     vt_count = 0;
-    vt_current[0] = initialconst;
+    vt_current->x = vt_current->y = vt_current->z = 0.0f;
+    vt_current->w = 0.0f;
+    vt_current->nx = 1.0f;
+    vt_current->ny = vt_current->nz = 0.0f;
+    vt_current->fog = 0.0f;
+    vt_current->cr0 = vt_current->cg0 = vt_current->cb0 = 0.0f;
+    vt_current->ca0 = 1.0f;
+    vt_current->cr1 = vt_current->cg1 = vt_current->cb1 = 0.0f;
+    for(i = 0 ; i != 4; i++){
+        vt_current->coord[i].s = vt_current->coord[i].t = vt_current->coord[i].r = 0.0f;
+        vt_current->coord[i].q = 1.0;
+    }
 }
 
 //functions:
@@ -55,45 +49,59 @@ wes_vertbuffer_flush()
     wes_state_update();
 
     wes_gl->glEnableVertexAttribArray(WES_APOS);
-    wes_gl->glVertexAttribPointer(WES_APOS, vt_possize, GL_FLOAT, GL_FALSE, sizeof(sVertexAttrib), vt_vbuffer);
-    if (vt_texcoord0size){
+    wes_gl->glVertexAttribPointer(WES_APOS, vt_possize, GL_FLOAT, GL_FALSE, sizeof(vertex_t), vt_vbuffer);
+    if (vt_coordsize[0]){
         wes_gl->glEnableVertexAttribArray(WES_ATEXCOORD0);
-        wes_gl->glVertexAttribPointer(WES_ATEXCOORD0, vt_texcoord0size, GL_FLOAT, GL_FALSE, sizeof(sVertexAttrib),
+        wes_gl->glVertexAttribPointer(WES_ATEXCOORD0, vt_coordsize[0], GL_FLOAT, GL_FALSE, sizeof(vertex_t),
             (GLfloat*)(vt_vbuffer) + WES_OFFSET_TEXCOORD0);
     } else {
         wes_gl->glDisableVertexAttribArray(WES_ATEXCOORD0);
     }
-    if (vt_texcoord1size){
+    if (vt_coordsize[1]){
         wes_gl->glEnableVertexAttribArray(WES_ATEXCOORD1);
-        wes_gl->glVertexAttribPointer(WES_ATEXCOORD1, vt_texcoord1size, GL_FLOAT, GL_FALSE, sizeof(sVertexAttrib),
+        wes_gl->glVertexAttribPointer(WES_ATEXCOORD1, vt_coordsize[1], GL_FLOAT, GL_FALSE, sizeof(vertex_t),
             (GLfloat*)(vt_vbuffer) + WES_OFFSET_TEXCOORD1);
     } else {
         wes_gl->glDisableVertexAttribArray(WES_ATEXCOORD1);
     }
+    if (vt_coordsize[2]){
+        wes_gl->glEnableVertexAttribArray(WES_ATEXCOORD2);
+        wes_gl->glVertexAttribPointer(WES_ATEXCOORD2, vt_coordsize[2], GL_FLOAT, GL_FALSE, sizeof(vertex_t),
+            (GLfloat*)(vt_vbuffer) + WES_OFFSET_TEXCOORD2);
+    } else {
+        wes_gl->glDisableVertexAttribArray(WES_ATEXCOORD2);
+    }
+    if (vt_coordsize[3]){
+        wes_gl->glEnableVertexAttribArray(WES_ATEXCOORD3);
+        wes_gl->glVertexAttribPointer(WES_ATEXCOORD3, vt_coordsize[3], GL_FLOAT, GL_FALSE, sizeof(vertex_t),
+            (GLfloat*)(vt_vbuffer) + WES_OFFSET_TEXCOORD3);
+    } else {
+        wes_gl->glDisableVertexAttribArray(WES_ATEXCOORD3);
+    }
     if (vt_normalsize){
         wes_gl->glEnableVertexAttribArray(WES_ANORMAL);
-        wes_gl->glVertexAttribPointer(WES_ANORMAL, vt_normalsize, GL_FLOAT, GL_FALSE, sizeof(sVertexAttrib),
+        wes_gl->glVertexAttribPointer(WES_ANORMAL, vt_normalsize, GL_FLOAT, GL_FALSE, sizeof(vertex_t),
             (GLfloat*)(vt_vbuffer) + WES_OFFSET_NORMAL);
     } else {
         wes_gl->glDisableVertexAttribArray(WES_ANORMAL);
     }
     if (vt_fogcoordsize){
         wes_gl->glEnableVertexAttribArray(WES_AFOGCOORD);
-        wes_gl->glVertexAttribPointer(WES_AFOGCOORD, vt_fogcoordsize, GL_FLOAT, GL_FALSE, sizeof(sVertexAttrib),
+        wes_gl->glVertexAttribPointer(WES_AFOGCOORD, vt_fogcoordsize, GL_FLOAT, GL_FALSE, sizeof(vertex_t),
             (GLfloat*)(vt_vbuffer) + WES_OFFSET_FOGCOORD);
     } else {
         wes_gl->glDisableVertexAttribArray(WES_AFOGCOORD);
     }
     if (vt_color0size){
         wes_gl->glEnableVertexAttribArray(WES_ACOLOR0);
-        wes_gl->glVertexAttribPointer(WES_ACOLOR0, vt_color0size, GL_FLOAT, GL_FALSE, sizeof(sVertexAttrib),
+        wes_gl->glVertexAttribPointer(WES_ACOLOR0, vt_color0size, GL_FLOAT, GL_FALSE, sizeof(vertex_t),
             (GLfloat*)(vt_vbuffer) + WES_OFFSET_COLOR0);
     } else {
         wes_gl->glDisableVertexAttribArray(WES_ACOLOR0);
     }
     if (vt_color1size){
         wes_gl->glEnableVertexAttribArray(WES_ACOLOR1);
-        wes_gl->glVertexAttribPointer(WES_ACOLOR1, vt_color1size, GL_FLOAT, GL_FALSE, sizeof(sVertexAttrib),
+        wes_gl->glVertexAttribPointer(WES_ACOLOR1, vt_color1size, GL_FLOAT, GL_FALSE, sizeof(vertex_t),
             (GLfloat*)(vt_vbuffer) + WES_OFFSET_COLOR1);
     } else {
         wes_gl->glDisableVertexAttribArray(WES_ACOLOR1);
@@ -123,9 +131,8 @@ glBegin(GLenum mode)
     vt_mode = mode;
 
     vt_possize = vt_normalsize = vt_fogcoordsize = 0;
-    vt_color1size = vt_color0size = vt_texcoord0size = vt_texcoord1size = 0;
+    vt_color1size = vt_color0size = vt_coordsize[0] = vt_coordsize[1] = 0;
 
-    /* Hacks */
     if (vt_mode == GL_QUAD_STRIP){
         vt_mode = GL_TRIANGLE_STRIP;
     }
@@ -135,8 +142,10 @@ glBegin(GLenum mode)
 
     /* Set Constant data */
     wes_gl->glVertexAttrib4f(WES_APOS, vt_current->x, vt_current->y, vt_current->z, vt_current->w);
-    wes_gl->glVertexAttrib4f(WES_ATEXCOORD0, vt_current->s0, vt_current->t0, vt_current->r0, vt_current->q0);
-    wes_gl->glVertexAttrib4f(WES_ATEXCOORD1, vt_current->s1, vt_current->t1, vt_current->r1, vt_current->q1);
+    wes_gl->glVertexAttrib4f(WES_ATEXCOORD0, vt_current->coord[0].s, vt_current->coord[0].t, vt_current->coord[0].r, vt_current->coord[0].q);
+    wes_gl->glVertexAttrib4f(WES_ATEXCOORD1, vt_current->coord[1].s, vt_current->coord[1].t, vt_current->coord[1].r, vt_current->coord[1].q);
+    wes_gl->glVertexAttrib4f(WES_ATEXCOORD2, vt_current->coord[2].s, vt_current->coord[2].t, vt_current->coord[2].r, vt_current->coord[2].q);
+    wes_gl->glVertexAttrib4f(WES_ATEXCOORD3, vt_current->coord[3].s, vt_current->coord[3].t, vt_current->coord[3].r, vt_current->coord[3].q);
     wes_gl->glVertexAttrib3f(WES_ANORMAL, vt_current->nx, vt_current->ny, vt_current->nz);
     wes_gl->glVertexAttrib1f(WES_AFOGCOORD, vt_current->fog);
     wes_gl->glVertexAttrib4f(WES_ACOLOR0, vt_current->cr0, vt_current->cg0, vt_current->cb0, vt_current->ca0);
@@ -187,62 +196,97 @@ glVertex2f(GLfloat x, GLfloat y)
 GLvoid
 glTexCoord4f(GLfloat s, GLfloat t, GLfloat r, GLfloat q)
 {
-    vt_texcoord0size = 4;
-    vt_current->s0 = s;
-    vt_current->t0 = t;
-    vt_current->r0 = r;
-    vt_current->q0 = q;
+    vt_coordsize[0] = 4;
+    vt_current->coord[0].s = s;
+    vt_current->coord[0].t = t;
+    vt_current->coord[0].r = r;
+    vt_current->coord[0].q = q;
 }
 
 GLvoid
 glTexCoord3f(GLfloat s, GLfloat t, GLfloat r)
 {
-    if (vt_texcoord0size > 3){
+    if (vt_coordsize[0] > 3){
         glTexCoord4f(s, t, r, 0);
     } else {
-        vt_texcoord0size = 3;
-        vt_current->s0 = s;
-        vt_current->t0 = t;
-        vt_current->r0 = r;
+        vt_coordsize[0] = 3;
+        vt_current->coord[0].s = s;
+        vt_current->coord[0].t = t;
+        vt_current->coord[0].r = r;
     }
 }
 
 GLvoid
 glTexCoord2f(GLfloat s, GLfloat t)
 {
-    if (vt_texcoord0size > 2){
+    if (vt_coordsize[0] > 2){
         glTexCoord3f(s, t, 0);
     } else {
-        vt_texcoord0size = 2;
-        vt_current->s0 = s;
-        vt_current->t0 = t;
+        vt_coordsize[0] = 2;
+        vt_current->coord[0].s = s;
+        vt_current->coord[0].t = t;
     }
 }
 
 GLvoid
 glTexCoord1f(GLfloat s)
 {
-    if (vt_texcoord0size > 1){
+    if (vt_coordsize[0] > 1){
         glTexCoord2f(s, 0);
     } else {
-        vt_texcoord0size = 1;
-        vt_current->s0 = s;
+        vt_coordsize[0] = 1;
+        vt_current->coord[0].s = s;
     }
 }
-
 
 //glMultiTexCoord
 GLvoid
 glMultiTexCoord4f(GLenum tex, GLfloat s, GLfloat t, GLfloat r, GLfloat q)
 {
-    if (tex == GL_TEXTURE0){
-        glTexCoord4f(s, t, r, q);
+    GLuint ind = tex - GL_TEXTURE0;
+    vt_coordsize[ind] = 4;
+    vt_current->coord[ind].s = s;
+    vt_current->coord[ind].t = t;
+    vt_current->coord[ind].r = r;
+    vt_current->coord[ind].q = q;
+}
+
+GLvoid
+glMultiTexCoord3f(GLenum tex, GLfloat s, GLfloat t, GLfloat r)
+{
+    GLuint ind = tex - GL_TEXTURE0;
+    if (vt_coordsize[ind] > 3){
+        glMultiTexCoord4f(tex, s, t, r, 1.0);
     } else {
-        vt_texcoord1size = 4;
-        vt_current->s1 = s;
-        vt_current->t1 = t;
-        vt_current->r1 = r;
-        vt_current->q1 = q;
+        vt_coordsize[ind] = 3;
+        vt_current->coord[ind].s = s;
+        vt_current->coord[ind].t = t;
+        vt_current->coord[ind].r = r;
+    }
+}
+
+GLvoid
+glMultiTexCoord2f(GLenum tex, GLfloat s, GLfloat t)
+{
+    GLuint ind = tex - GL_TEXTURE0;
+    if (vt_coordsize[ind] > 2){
+        glMultiTexCoord3f(tex, s, t, 0.0);
+    } else {
+        vt_coordsize[ind] = 2;
+        vt_current->coord[ind].s = s;
+        vt_current->coord[ind].t = t;
+    }
+}
+
+GLvoid
+glMultiTexCoord1f(GLenum tex, GLfloat s)
+{
+    GLuint ind = tex - GL_TEXTURE0;
+    if (vt_coordsize[ind] > 1){
+        glMultiTexCoord2f(tex, s, 0.0);
+    } else {
+        vt_coordsize[ind] = 1;
+        vt_current->coord[ind].s = s;
     }
 }
 
@@ -312,6 +356,5 @@ wes_begin_init()
 GLvoid
 wes_begin_destroy()
 {
-    //free(vt_vbuffer);
-    //free(vt_ibuffer);
+
 }
