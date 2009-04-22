@@ -139,7 +139,7 @@ void ComputeTexGen(int i){
 		vTexCoord[i].z = dot(aPosition, row);
 	}
 	if (uTexGenMode[i].w == GEN_OBJLINEAR){
-		vec4 row = vec4((uTexGenMat[i])[0][2], (uTexGenMat[i])[1][3], (uTexGenMat[i])[2][3], (uTexGenMat[i])[3][3]);
+		vec4 row = vec4((uTexGenMat[i])[0][3], (uTexGenMat[i])[1][3], (uTexGenMat[i])[2][3], (uTexGenMat[i])[3][3]);
 		vTexCoord[i].w = dot(aPosition, row);
 	}
 	

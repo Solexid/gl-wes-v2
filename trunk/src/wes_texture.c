@@ -17,6 +17,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
 #include <stdlib.h>
+#include <string.h>
 #include "wes.h"
 #include "wes_gl_defines.h"
 
@@ -79,17 +80,57 @@ glTexImage2D(GLenum target, GLint level, GLenum internalFormat, GLsizei width, G
 }
 
 GLvoid
-wes_halveimage(GLint width, GLint height, GLenum format, GLenum type, const GLvoid* pixels)
+wes_halveimage(GLint nw, GLint nh, GLint byteperpixel, char* data, char* newdata)
 {
-
-
-
-
+    int i, j;
+    for(i = 0; i < nw; i++){
+        for(j = 0; j < nh; j++){
+            memcpy(&newdata[(i + j * nw) * byteperpixel], &data[(i + j * nw *2) * 2*byteperpixel], byteperpixel);
+        }
+    }
 }
 
 GLvoid
-gluBuild2DMipmaps(GLenum target, GLint levelmax, GLenum internalFormat, GLsizei width, GLsizei height,
-                  GLint border, GLenum format, GLenum type, const GLvoid *pixels )
+gluBuild2DMipmaps(GLenum target, GLint components, GLsizei width, GLsizei height,
+                GLenum format, GLenum type, const GLvoid *pixels )
 {
-    glTexImage2D(target, 0, internalFormat, width, height, border, format, type, pixels);
+    int i = 1;
+    GLuint byteperpixel = 0;
+    char *data = NULL, *newdata = NULL;
+    switch(type)
+    {
+        case GL_UNSIGNED_BYTE:
+            byteperpixel = components;
+            break;
+
+        case GL_UNSIGNED_SHORT_4_4_4_4:
+        case GL_UNSIGNED_SHORT_5_5_5_1:
+        case GL_UNSIGNED_SHORT_5_6_5:
+            byteperpixel = 2;
+            break;
+    }
+
+    if (byteperpixel == 0)
+    {
+        return;
+    }
+
+    glTexImage2D(target, 0, format, width, height, 0, format, type, pixels);
+
+    data = malloc(width * height * byteperpixel);
+    memcpy(data, pixels, width * height * byteperpixel);
+    while(width != 1 || height != 1){
+        width  >>= 1;
+        height >>= 1;
+        if (width == 0) width = 1;
+        if (height == 0) height = 1;
+        newdata = malloc(width * height * byteperpixel);
+        wes_halveimage(width, height, byteperpixel, data, newdata);
+        glTexImage2D(target, i++, format, width, height, 0, format, type, newdata);
+        free(data);
+        data = newdata;
+    }
+
+    if (newdata != NULL)
+        free(newdata);
 }

@@ -157,39 +157,5 @@ wes_shader_destroy()
 
 }
 
-GLvoid
-glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr)
-{
-    wes_gl->glVertexAttribPointer(WES_APOS, size, type, GL_FALSE, stride, ptr);
-}
 
-GLvoid
-glNormalPointer(GLenum type, GLsizei stride, const GLvoid *ptr)
-{
-    wes_gl->glVertexAttribPointer(WES_ANORMAL, 3, type, GL_FALSE, stride, ptr);
-}
-
-GLvoid
-glColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr)
-{
-    wes_gl->glVertexAttribPointer(WES_ACOLOR0, size, type, GL_FALSE, stride, ptr);
-}
-
-GLvoid
-glTexCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr)
-{
-    wes_gl->glVertexAttribPointer(WES_ATEXCOORD0, size, type, GL_FALSE, stride, ptr);
-}
-
-GLvoid
-glSecondaryColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr)
-{
-    wes_gl->glVertexAttribPointer(WES_ACOLOR1, size, type, GL_FALSE, stride, ptr);
-}
-
-GLvoid
-glFogCoordPointer(GLenum type, GLsizei stride, const GLvoid *ptr)
-{
-    wes_gl->glVertexAttribPointer(WES_AFOGCOORD, 1, type, GL_FALSE, stride, ptr);
-}
 

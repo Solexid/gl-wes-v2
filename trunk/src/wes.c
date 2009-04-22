@@ -228,3 +228,26 @@ wes_destroy()
     wes_shader_destroy();
     wes_begin_destroy();
 }
+
+
+GLvoid
+glMultiDrawArrays(GLenum mode, GLint *first, GLsizei *count, GLsizei primcount)
+{
+    GLuint i;
+    for (i = 0; i < primcount; i++) {
+        if (count[i] > 0){
+            wes_gl->glDrawArrays(mode, first[i], count[i]);
+        }
+    }
+}
+
+GLvoid
+glMultiDrawElements(GLenum mode, GLsizei *count, GLenum type, GLvoid **indices, GLsizei primcount)
+{
+    GLuint i;
+    for (i = 0; i < primcount; i++) {
+        if (count[i] > 0){
+            wes_gl->glDrawElements(mode, count[i], type, indices[i]);
+        }
+    }
+}
