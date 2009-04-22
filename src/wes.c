@@ -36,7 +36,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #endif
 
 void*           wes_libhandle = NULL;
-sGLESv2Lib*     wes_gl = NULL;
+gles2lib_t*     wes_gl = NULL;
 
 //OpenGL ES 2 function names for runtime library loading:
 const char* glfuncnames[] =
@@ -192,7 +192,7 @@ wes_init()
     int i;
     void** ptr;
 
-    wes_gl = malloc(sizeof(sGLESv2Lib));
+    wes_gl = malloc(sizeof(gles2lib_t));
     if (wes_gl == NULL)
     {
         PRINT_ERROR("Could not load Allocate mem: %s", wes_libname);

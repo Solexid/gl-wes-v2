@@ -87,7 +87,6 @@ wes_halveimage(GLint width, GLint height, GLenum format, GLenum type, const GLvo
 
 }
 
-
 GLvoid
 gluBuild2DMipmaps(GLenum target, GLint levelmax, GLenum internalFormat, GLsizei width, GLsizei height,
                   GLint border, GLenum format, GLenum type, const GLvoid *pixels )

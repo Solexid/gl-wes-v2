@@ -32,27 +32,16 @@ GLuint          vt_vbuffer_count;
 GLshort         vt_ibuffer[WES_INDEX_COUNT];
 GLuint          vt_ibuffer_count;
 vertex_t        vt_current[1];
+vertex_t        vt_const[1];
 GLuint          vt_possize, vt_color0size, vt_color1size,
-                vt_coordsize[4], vt_normalsize, vt_fogcoordsize;
+                vt_coordsize[WES_MULTITEX_NUM], vt_normalsize, vt_fogcoordsize;
 
 GLvoid
 wes_reset()
 {
-    int i;
     vt_mode = 0;
     vt_count = 0;
-    vt_current->x = vt_current->y = vt_current->z = 0.0f;
-    vt_current->w = 0.0f;
-    vt_current->nx = 1.0f;
-    vt_current->ny = vt_current->nz = 0.0f;
-    vt_current->fog = 0.0f;
-    vt_current->cr0 = vt_current->cg0 = vt_current->cb0 = 1.0f;
-    vt_current->ca0 = 1.0f;
-    vt_current->cr1 = vt_current->cg1 = vt_current->cb1 = 0.0f;
-    for(i = 0 ; i != 4; i++){
-        vt_current->coord[i].s = vt_current->coord[i].t = vt_current->coord[i].r = 0.0f;
-        vt_current->coord[i].q = 1.0;
-    }
+    *vt_current = *vt_const;
 }
 
 
@@ -144,6 +133,33 @@ wes_vertbuffer_flush()
     wes_reset();
 }
 
+
+GLvoid
+wes_begin_init()
+{
+    int i;
+
+    wes_reset();
+    vt_const->x = vt_const->y = vt_const->z = 0.0f;
+    vt_const->w = 0.0f;
+    vt_const->nx = 1.0f;
+    vt_const->ny = vt_const->nz = 0.0f;
+    vt_const->fog = 0.0f;
+    vt_const->cr0 = vt_const->cg0 = vt_const->cb0 = 1.0f;
+    vt_const->ca0 = 1.0f;
+    vt_const->cr1 = vt_const->cg1 = vt_const->cb1 = 0.0f;
+    for(i = 0 ; i != WES_MULTITEX_NUM; i++){
+        vt_const->coord[i].s = vt_const->coord[i].t = vt_const->coord[i].r = 0.0f;
+        vt_const->coord[i].q = 1.0;
+    }
+}
+
+GLvoid
+wes_begin_destroy()
+{
+
+}
+
 GLvoid
 glBegin(GLenum mode)
 {
@@ -169,6 +185,8 @@ glBegin(GLenum mode)
     wes_gl->glVertexAttrib1f(WES_AFOGCOORD, vt_current->fog);
     wes_gl->glVertexAttrib4f(WES_ACOLOR0, vt_current->cr0, vt_current->cg0, vt_current->cb0, vt_current->ca0);
     wes_gl->glVertexAttrib3f(WES_ACOLOR1, vt_current->cr1, vt_current->cg1, vt_current->cb1);
+    *vt_const = *vt_current;
+
 }
 
 //glVertex
@@ -365,14 +383,3 @@ glEnd()
     wes_vertbuffer_flush();
 }
 
-GLvoid
-wes_begin_init()
-{
-    wes_reset();
-}
-
-GLvoid
-wes_begin_destroy()
-{
-
-}

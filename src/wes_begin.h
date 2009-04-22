@@ -16,13 +16,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include "wes_gl_defines.h"
+#include "wes_uniform.h"
 
 #ifndef __WES_BEGIN_H__
 #define __WES_BEGIN_H__
 
-
-/* Initial Buffer sizes*/
+/* Buffer sizes*/
 #define WES_BUFFER_COUNT        (8000)
 #define WES_INDEX_COUNT         (8000)
 
@@ -47,7 +46,7 @@ struct vertex_s {
     GLfloat cr1, cg1, cb1;          //Secondary Color, 3 elements
     struct {
         GLfloat s, t, r, q;
-    } coord[4];
+    } coord[WES_MULTITEX_NUM];
 };
 
 //function declarations:

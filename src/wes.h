@@ -31,8 +31,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #define PRINT_ERROR(...)
 #endif
 
-typedef struct sGLESv2Lib sGLESv2Lib;
-struct sGLESv2Lib
+typedef struct gles2lib_s gles2lib_t;
+
+struct gles2lib_s
 {
      void         (*glActiveTexture)(GLenum texture);
      void         (*glAttachShader)(GLuint program, GLuint shader);
@@ -178,7 +179,7 @@ struct sGLESv2Lib
      void         (*glViewport)(GLint x, GLint y, GLsizei width, GLsizei height);
 };
 
-extern sGLESv2Lib* wes_gl;
+extern gles2lib_t* wes_gl;
 
 extern GLvoid wes_init();
 extern GLvoid wes_destroy();
