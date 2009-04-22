@@ -18,4 +18,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 extern GLvoid gluOrtho2D(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top);
 extern GLvoid gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat znear, GLfloat zfar);
-extern GLvoid gluLookAt(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx, GLfloat centery, GLfloat centerz, GLfloat upx, GLfloat upy, GLfloat upz);
+extern GLvoid gluLookAt(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx, GLfloat centery,
+                        GLfloat centerz, GLfloat upx, GLfloat upy, GLfloat upz);
+
+extern GLvoid gluBuild2DMipmaps(GLenum target, GLint components, GLsizei width, GLsizei height,
+                                GLenum format, GLenum type, const GLvoid *pixels );

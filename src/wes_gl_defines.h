@@ -19,6 +19,27 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #ifndef __WES_GL_DEFINES_H__
 #define __WES_GL_DEFINES_H__
 
+/* Vertex arrays    */
+#define GL_VERTEX_ARRAY                         0x8074
+#define GL_NORMAL_ARRAY                         0x8075
+#define GL_COLOR_ARRAY                          0x8076
+#define GL_INDEX_ARRAY                          0x8077
+#define GL_TEXTURE_COORD_ARRAY                  0x8078
+#define GL_V2F                                  0x2A20
+#define GL_V3F                                  0x2A21
+#define GL_C4UB_V2F                             0x2A22
+#define GL_C4UB_V3F                             0x2A23
+#define GL_C3F_V3F                              0x2A24
+#define GL_N3F_V3F                              0x2A25
+#define GL_C4F_N3F_V3F                          0x2A26
+#define GL_T2F_V3F                              0x2A27
+#define GL_T4F_V4F                              0x2A28
+#define GL_T2F_C4UB_V3F                         0x2A29
+#define GL_T2F_C3F_V3F                          0x2A2A
+#define GL_T2F_N3F_V3F                          0x2A2B
+#define GL_T2F_C4F_N3F_V3F                      0x2A2C
+#define GL_T4F_C4F_N3F_V4F                      0x2A2D
+
 /* Hints */
 #define GL_FOG_HINT                             0x0C54
 #define GL_LINE_SMOOTH_HINT                     0x0C52
@@ -179,6 +200,7 @@ typedef float           GLfloat;
 typedef float           GLclampf;
 typedef int             GLfixed;
 typedef int             GLclampx;
+typedef double          GLdouble;
 
 /* GL types for handling large vertex buffer objects */
 typedef int             GLintptr;

@@ -172,8 +172,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 extern GLvoid   glEnable(GLenum e);
 extern GLvoid   glDisable(GLenum e);
 
-/*  Alpha Test                      */
-extern GLvoid   glAlphaFunc(GLenum func, GLclampf ref);
 
 /*  Begin / End Paradigm            */
 extern GLvoid   glBegin(GLenum mode);
@@ -184,9 +182,11 @@ extern GLvoid   glVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w);
 extern GLvoid   glVertex3f(GLfloat x, GLfloat y, GLfloat z);
 extern GLvoid   glVertex2f(GLfloat x, GLfloat y);
 #define         glVertex4d(x, y, z, w)      glVertex4f((GLfloat)(x), (GLfloat)(y), (GLfloat)(z), (GLfloat)(w))
-#define         glVertex3d(x, y, z, w)      glVertex3f((GLfloat)(x), (GLfloat)(y), (GLfloat)(z))
-#define         glVertex2d(x, y, z, w)      glVertex2f((GLfloat)(x), (GLfloat)(y))
-
+#define         glVertex3d(x, y, z)         glVertex3f((GLfloat)(x), (GLfloat)(y), (GLfloat)(z))
+#define         glVertex2d(x, y)            glVertex2f((GLfloat)(x), (GLfloat)(y))
+#define         glVertex4fv(v)              glVertex4f(v[0], v[1], v[2], v[3])
+#define         glVertex3fv(v)              glVertex3f(v[0], v[1], v[2])
+#define         glVertex2fv(v)              glVertex2f(v[0], v[1])
 extern GLvoid   glTexCoord4f(GLfloat s, GLfloat t, GLfloat r, GLfloat q);
 extern GLvoid   glTexCoord3f(GLfloat s, GLfloat t, GLfloat r);
 extern GLvoid   glTexCoord2f(GLfloat s, GLfloat t);
@@ -195,7 +195,6 @@ extern GLvoid   glTexCoord1f(GLfloat s);
 #define         glTexCoord3d(x, y, z)       glTexCoord3f((GLfloat)(x), (GLfloat)(y), (GLfloat)(z))
 #define         glTexCoord2d(x, y)          glTexCoord2f((GLfloat)(x), (GLfloat)(y))
 #define         glTexCoord1d(x)             glTexCoord2f((GLfloat)(x))
-
 extern GLvoid   glMultiTexCoord4f(GLenum tex, GLfloat s, GLfloat t, GLfloat r, GLfloat q);
 extern GLvoid   glMultiTexCoord3f(GLenum tex, GLfloat s, GLfloat t, GLfloat r);
 extern GLvoid   glMultiTexCoord2f(GLenum tex, GLfloat s, GLfloat t);
@@ -203,18 +202,27 @@ extern GLvoid   glMultiTexCoord1f(GLenum tex, GLfloat s);
 extern GLvoid   glNormal3f(GLfloat x, GLfloat y, GLfloat z);
 extern GLvoid   glFogCoordf(GLfloat f);
 extern GLvoid   glColor4f(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
+extern GLvoid   glColor4ub(GLubyte r, GLubyte g, GLubyte b, GLubyte a);
 extern GLvoid   glColor3f(GLfloat r, GLfloat g, GLfloat b);
+extern GLvoid   glColor3ub(GLubyte r, GLubyte g, GLubyte b);
 extern GLvoid   glSecondaryColor3f(GLfloat r, GLfloat g, GLfloat b);
 
-/* Vertex Array Specification */
+/* Vertex Arrays*/
+extern GLvoid   glEnableClientState(GLenum array);
+extern GLvoid   glDisableClientState(GLenum array);
+extern GLvoid   glClientActiveTexture(GLenum texture);
 extern GLvoid   glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr);
 extern GLvoid   glNormalPointer(GLenum type, GLsizei stride, const GLvoid *ptr);
 extern GLvoid   glColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr);
 extern GLvoid   glTexCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr);
 extern GLvoid   glSecondaryColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr);
 extern GLvoid   glFogCoordPointer(GLenum type, GLsizei stride, const GLvoid *ptr);
+extern GLvoid   glMultiDrawArrays(GLenum mode, GLint *first, GLsizei *count, GLsizei primcount);
+extern GLvoid   glMultiDrawElements(GLenum mode, GLsizei *count, GLenum type, GLvoid **indices, GLsizei primcount);
+extern GLvoid   glInterleavedArrays(GLenum format, GLsizei stride, const GLvoid *pointer);
 
 /*  Coordinate Transformations  */
+#define         glDepthRange(n, f)          glDepthRange((GLfloat)n, (GLfloat)f)
 extern GLvoid   glMatrixMode(GLenum mode);
 extern GLvoid   glLoadMatrixf(GLfloat *m);
 extern GLvoid   glLoadMatrixTransposef(GLfloat *m);
@@ -222,32 +230,49 @@ extern GLvoid   glMultMatrixf(GLfloat *m);
 extern GLvoid   glMultMatrixTransposef(GLfloat *m);
 extern GLvoid   glLoadIdentity();
 extern GLvoid   glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
-extern GLvoid   glTranslatef(GLfloat x, GLfloat y, GLfloat z);
+#define         glRotated(angle, x, y, z)   glRotatef((GLfloat)angle, (GLfloat)x, (GLfloat)y, (GLfloat)z)
 extern GLvoid   glScalef(GLfloat x, GLfloat y, GLfloat z);
-extern GLvoid   glFrustrumf(float l, float r, float b, float t, float n, float f);
-extern GLvoid   glOrthof(float l, float r, float b, float t, float n, float f);
+#define         glScaled(x,y,z)             glScalef((GLfloat)x, (GLfloat)y, (GLfloat)z)
+extern GLvoid   glTranslatef(GLfloat x, GLfloat y, GLfloat z);
+#define         glTranslated(x,y,z)         glTranslatef((GLfloat)x, (GLfloat)y, (GLfloat)z)
+extern GLvoid   glFrustrumf(GLfloat l, GLfloat r, GLfloat b, GLfloat t, GLfloat n, GLfloat f);
+#define         glFrustrum(l,r,b,t,n,f)     glFrustrumf((GLfloat)l,(GLfloat)r,(GLfloat)b,(GLfloat)t,(GLfloat)n,(GLfloat)f)
+extern GLvoid   glOrthof(GLfloat l, GLfloat r, GLfloat b, GLfloat t, GLfloat n, GLfloat f);
+#define         glOrtho(l,r,b,t,n,f)        glOrthof((GLfloat)l,(GLfloat)r,(GLfloat)b,(GLfloat)t,(GLfloat)n,(GLfloat)f)
+extern GLvoid   glActiveTexture(GLenum texture);
 extern GLvoid   glPushMatrix();
 extern GLvoid   glPopMatrix();
-extern GLvoid   glActiveTexture(GLenum texture);
+extern GLvoid   glTexGeni(GLenum coord, GLenum pname, GLint param);
+extern GLvoid   glTexGenfv(GLenum coord, GLenum pname, GLfloat *param);
 
-extern GLvoid   glUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, GLfloat *value);
-extern GLvoid   glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, GLfloat *value);
-extern GLvoid   glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, GLfloat *value);
+/*  Clipping    */
+extern GLvoid   glClipPlane(GLenum plane, const GLdouble *equation);
+extern GLvoid   glGetClipPlane(GLenum plane, GLdouble *equation);
 
-/* Lighting  */
+/*  Colors and Coloring    */
+extern GLvoid   glMaterialf(GLenum face, GLenum pname, GLfloat params);
+extern GLvoid   glMaterialfv(GLenum face, GLenum pname, GLfloat *params);
 extern GLvoid   glLightf(GLenum light, GLenum pname, GLfloat params);
 extern GLvoid   glLightfv(GLenum light, GLenum pname, GLfloat *params);
 extern GLvoid   glLightModeli(GLenum pname, GLint params);
 extern GLvoid   glLightModelfv(GLenum pname, GLfloat *params);
-extern GLvoid   glMaterialf(GLenum face, GLenum pname, GLfloat params);
-extern GLvoid   glMaterialfv(GLenum face, GLenum pname, GLfloat *params);
+extern GLvoid   glColorMaterial(GLenum face, GLenum mode);
 
-/* Fog  */
+/*  Program Objects         */
+extern GLvoid   glUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, GLfloat *value);
+extern GLvoid   glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, GLfloat *value);
+extern GLvoid   glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, GLfloat *value);
+
+/*  Fog         */
 extern GLvoid   glFogi(GLenum pname, GLint param);
 extern GLvoid   glFogf(GLenum pname, GLfloat param);
 extern GLvoid   glFogfv(GLenum pname, GLfloat *param);
 
-/* Texture  */
+/*  Alpha Test  */
+extern GLvoid   glAlphaFunc(GLenum func, GLclampf ref);
+
+
+/*  Texture     */
 extern GLvoid   glTexImage2D(GLenum target, GLint level, GLenum internalFormat, GLsizei width, GLsizei height,
            GLint border, GLenum format, GLenum type, const GLvoid *pixels);
 

@@ -36,6 +36,8 @@ vertex_t        vt_const[1];
 GLuint          vt_possize, vt_color0size, vt_color1size,
                 vt_coordsize[WES_MULTITEX_NUM], vt_normalsize, vt_fogcoordsize;
 
+GLenum          vt_clienttex;
+
 GLvoid
 wes_reset()
 {
@@ -138,7 +140,7 @@ GLvoid
 wes_begin_init()
 {
     int i;
-
+    vt_clienttex = 0;
     wes_reset();
     vt_const->x = vt_const->y = vt_const->z = 0.0f;
     vt_const->w = 0.0f;
@@ -368,6 +370,32 @@ glColor3f(GLfloat r, GLfloat g, GLfloat b)
     }
 }
 
+const GLfloat ubtofloat = 1.0f / 255.0f;
+
+GLvoid
+glColor4ub(GLubyte r, GLubyte g, GLubyte b, GLubyte a)
+{
+    vt_color0size = 4;
+    vt_current->cr0 = (GLfloat)r * ubtofloat;
+    vt_current->cg0 = (GLfloat)g * ubtofloat;
+    vt_current->cb0 = (GLfloat)b * ubtofloat;
+    vt_current->ca0 = (GLfloat)a * ubtofloat;
+}
+
+GLvoid
+glColor3ub(GLubyte r, GLubyte g, GLubyte b)
+{
+    if (vt_color0size > 3){
+        glColor4ub(r, g, b, 1);
+    } else {
+        vt_color0size = 3;
+        vt_current->cr0 = (GLfloat)r * ubtofloat;
+        vt_current->cg0 = (GLfloat)g * ubtofloat;
+        vt_current->cb0 = (GLfloat)b * ubtofloat;
+    }
+}
+
+
 //glSecondaryColor
 GLvoid
 glSecondaryColor3f(GLfloat r, GLfloat g, GLfloat b){
@@ -383,3 +411,240 @@ glEnd()
     wes_vertbuffer_flush();
 }
 
+GLvoid
+glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr)
+{
+    wes_gl->glVertexAttribPointer(WES_APOS, size, type, GL_FALSE, stride, ptr);
+}
+
+GLvoid
+glNormalPointer(GLenum type, GLsizei stride, const GLvoid *ptr)
+{
+    wes_gl->glVertexAttribPointer(WES_ANORMAL, 3, type, GL_FALSE, stride, ptr);
+}
+
+GLvoid
+glColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr)
+{
+    wes_gl->glVertexAttribPointer(WES_ACOLOR0, size, type, GL_FALSE, stride, ptr);
+}
+
+GLvoid
+glTexCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr)
+{
+    wes_gl->glVertexAttribPointer(WES_ATEXCOORD0 + vt_clienttex, size, type, GL_FALSE, stride, ptr);
+}
+
+GLvoid
+glSecondaryColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr)
+{
+    wes_gl->glVertexAttribPointer(WES_ACOLOR1, size, type, GL_FALSE, stride, ptr);
+}
+
+GLvoid
+glFogCoordPointer(GLenum type, GLsizei stride, const GLvoid *ptr)
+{
+    wes_gl->glVertexAttribPointer(WES_AFOGCOORD, 1, type, GL_FALSE, stride, ptr);
+}
+
+GLvoid
+glEnableClientState(GLenum array)
+{
+    switch(array)
+    {
+        case GL_VERTEX_ARRAY:
+            wes_gl->glEnableVertexAttribArray(WES_APOS); break;
+        case GL_NORMAL_ARRAY:
+            wes_gl->glEnableVertexAttribArray(WES_ANORMAL); break;
+        case GL_COLOR_ARRAY:
+            wes_gl->glEnableVertexAttribArray(WES_ACOLOR0); break;
+        /*case GL_SECONDARY_COLOR_ARRAY:
+            wes_gl->glEnableVertexAttribArray(WES_ACOLOR1); break;
+        case GL_FOG_COORD_ARRAY:
+            wes_gl->glEnableVertexAttribArray(WES_AFOGCOORD); break;*/
+        case GL_TEXTURE_COORD_ARRAY:
+            wes_gl->glEnableVertexAttribArray(WES_ATEXCOORD0 + vt_clienttex); break;
+        default:
+            PRINT_ERROR("EnableClientState Unhandled enum");
+    }
+
+}
+
+GLvoid
+glDisableClientState(GLenum array)
+{
+    switch(array)
+    {
+        case GL_VERTEX_ARRAY:
+            wes_gl->glDisableVertexAttribArray(WES_APOS); break;
+        case GL_NORMAL_ARRAY:
+            wes_gl->glDisableVertexAttribArray(WES_ANORMAL); break;
+        case GL_COLOR_ARRAY:
+            wes_gl->glDisableVertexAttribArray(WES_ACOLOR0); break;
+        /*case GL_SECONDARY_COLOR_ARRAY:
+            wes_gl->glDisableVertexAttribArray(WES_ACOLOR1); break;
+        case GL_FOG_COORD_ARRAY:
+            wes_gl->glDisableVertexAttribArray(WES_AFOGCOORD); break;*/
+        case GL_TEXTURE_COORD_ARRAY:
+            wes_gl->glDisableVertexAttribArray(WES_ATEXCOORD0 + vt_clienttex); break;
+        default:
+            PRINT_ERROR("DisableClientState Unhandled enum");
+    }
+}
+
+GLvoid
+glInterleavedArrays(GLenum format, GLsizei stride, const GLvoid *pointer)
+{
+    GLint et, ec, en, st, sc, sv, tc, pc, pn, pv, s;
+    GLint str;
+
+    et = ec = en = GL_FALSE;
+    st = sc = sv = 0;
+    tc = GL_FLOAT;
+    pc = pn = pv = s = 0;
+
+
+    GLint f = sizeof(GLfloat);
+    GLint c = 4 * sizeof(GLubyte);
+
+    switch(format)
+    {
+        case GL_V2F:
+            et = ec = en = GL_FALSE;
+            sv = 2;
+            pv = 0;
+            s = 2 * f;
+            break;
+
+        case GL_V3F:
+            et = ec = en = GL_FALSE;
+            sv = 3;
+            pv = 0;
+            s = 3 * f;
+            break;
+
+        case GL_C4UB_V2F:
+            ec = GL_TRUE; et = en = GL_FALSE;
+            sv = 2; sc = 4;
+            tc = GL_UNSIGNED_BYTE;
+            pc = 0; pv = c;
+            s = c + 2 * f;
+            break;
+
+        case GL_C4UB_V3F:
+            ec = GL_TRUE; et = en = GL_FALSE;
+            sv = 3; sc = 4;
+            tc = GL_UNSIGNED_BYTE;
+            pc = 0; pv = c;
+            s = c + 3 * f;
+            break;
+
+        case GL_C3F_V3F:
+            ec = GL_TRUE; et = en = GL_FALSE;
+            sv = 3; sc = 3;
+            tc = GL_FLOAT;
+            pc = 0; pv = 3 * f;
+            s = 6 * f;
+            break;
+
+        case GL_N3F_V3F:
+            en = GL_TRUE; et = ec = GL_FALSE;
+            sv = 3;
+            pn = 0; pv = 3 * f;
+            s = 6 * f;
+            break;
+
+        case GL_C4F_N3F_V3F:
+            en = ec = GL_TRUE; et = GL_FALSE;
+            sv = 3; sc = 4;
+            tc = GL_FLOAT;
+            pc = 0; pn = 4 * f; pv = 7 * f;
+            s = 10 * f;
+            break;
+
+        case GL_T2F_V3F:
+            et = GL_TRUE; en = ec = GL_FALSE;
+            sv = 3; st = 2;
+            pv = 2 * f;
+            s = 5 * f;
+            break;
+
+        case GL_T4F_V4F:
+            et = GL_TRUE; en = ec = GL_FALSE;
+            sv = 4; st = 4;
+            pv = 4 * f;
+            s = 8 * f;
+            break;
+
+        case GL_T2F_C4UB_V3F:
+            et = ec = GL_TRUE; en = GL_FALSE;
+            sv = 3; st = 2; sc = 4;
+            tc = GL_UNSIGNED_BYTE;
+            pc = 2 * f; pv = 2 * f + c;
+            s = 5 * f + c;
+            break;
+
+        case GL_T2F_C3F_V3F:
+            et = ec = GL_TRUE; en = GL_FALSE;
+            sv = 3; st = 2; sc = 3;
+            tc = GL_FLOAT;
+            pc = 2 * f; pv = 5 * f;
+            s = 8 * f;
+            break;
+
+        case GL_T2F_N3F_V3F:
+            et = en = GL_TRUE; ec = GL_FALSE;
+            sv = 3; st = 2;
+            pn = 2 * f; pv = 5 * f;
+            s = 8 * f;
+            break;
+
+        case GL_T2F_C4F_N3F_V3F:
+            en = et = ec = GL_TRUE;
+            sv = 3; st = 2; sc = 4;
+            tc = GL_FLOAT;
+            pc = 2 * f; pn = 6 * f ; pv = 9 * f;
+            s = 12 * f;
+            break;
+
+        case GL_T4F_C4F_N3F_V4F:
+            en = et = ec = GL_TRUE;
+            sv = 4; st = 4; sc = 4;
+            tc = GL_FLOAT;
+            pc = 4 * f; pn = 8 * f ; pv = 12 * f;
+            s = 16 * f;
+            break;
+    }
+
+    str = (stride == 0) ? (s) : (stride);
+
+    wes_gl->glDisableVertexAttribArray(WES_AFOGCOORD);
+    wes_gl->glDisableVertexAttribArray(WES_ACOLOR1);
+
+    wes_gl->glEnableVertexAttribArray(WES_APOS);
+    wes_gl->glVertexAttribPointer(WES_APOS, sv, GL_FLOAT, GL_FALSE, str, (GLubyte*)pointer + pv);
+    if (et) {
+        wes_gl->glEnableVertexAttribArray(WES_ATEXCOORD0 + vt_clienttex);
+        wes_gl->glVertexAttribPointer(WES_ATEXCOORD0 + vt_clienttex, st, GL_FLOAT, GL_FALSE, str, pointer);
+    } else {
+        wes_gl->glDisableVertexAttribArray(WES_ATEXCOORD0 + vt_clienttex);
+    }
+    if (ec) {
+        wes_gl->glEnableVertexAttribArray(WES_ACOLOR0);
+        wes_gl->glVertexAttribPointer(WES_ACOLOR0, st, tc, GL_FALSE, str, (GLubyte*)pointer + pc);
+    } else {
+        wes_gl->glDisableVertexAttribArray(WES_ACOLOR0);
+    }
+    if (en) {
+        wes_gl->glEnableVertexAttribArray(WES_ANORMAL);
+        wes_gl->glVertexAttribPointer(WES_ANORMAL, 3, GL_FLOAT, GL_FALSE, str, (GLubyte*)pointer + pn);
+    } else {
+        wes_gl->glDisableVertexAttribArray(WES_ANORMAL);
+    }
+}
+
+GLvoid
+glClientActiveTexture(GLenum texture)
+{
+    vt_clienttex = texture - GL_TEXTURE0;
+}

@@ -123,11 +123,9 @@ wes_state_update()
 
     UpdateUniform1i(uEnableRescaleNormal);
     UpdateUniform1i(uEnableNormalize);
-    for(i = 0; i != WES_MULTITEX_NUM; i++){
-        UpdateUniform4i(uEnableTextureGen[i]);
-    }
     for(i = 0; i != WES_CLIPPLANE_NUM; i++){
         UpdateUniform1i(uEnableClipPlane[i]);
+        UpdateUniform4f(uClipPlane[i]);
     }
     UpdateUniform1i(uEnableColorMaterial);
     UpdateUniform1i(uEnableFog);
@@ -146,6 +144,7 @@ wes_state_update()
         UpdateUniform2f(uLight[i].SpotVar);
     }
     for(i = 0; i < WES_MULTITEX_NUM; i++){
+        UpdateUniform4i(uEnableTextureGen[i]);
         UpdateUniform3i(uTexture[i].Func);
         UpdateUniform4i(uTexture[i].Arg0);
         UpdateUniform4i(uTexture[i].Arg1);
@@ -646,6 +645,23 @@ glLightModeli(GLenum pname, GLint params)
 }
 
 GLvoid
+glColorMaterial(GLenum face, GLenum mode)
+{
+    GLint ind = (face == GL_FRONT) ? 0 : 1;
+    if (mode == GL_AMBIENT){
+        SetUniform1i(uMaterial[ind].ColorMaterial, 0);
+    } else if (mode == GL_DIFFUSE){
+        SetUniform1i(uMaterial[ind].ColorMaterial, 1);
+    } else if (mode == GL_AMBIENT_AND_DIFFUSE){
+        SetUniform1i(uMaterial[ind].ColorMaterial, 2);
+    } else if (mode == GL_SPECULAR){
+        SetUniform1i(uMaterial[ind].ColorMaterial, 3);
+    } else if (mode == GL_EMISSION){
+        SetUniform1i(uMaterial[ind].ColorMaterial, 4);
+    }
+}
+
+GLvoid
 glEnable(GLenum e)
 {
     wes_setstate(e, GL_TRUE);
@@ -837,4 +853,21 @@ glTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
     }
 }
 
+GLvoid
+glClipPlane(GLenum plane, const GLdouble *equation)
+{
+    GLint ind = plane - GL_CLIP_PLANE0;
+    SetUniform4f(uClipPlane[ind], (GLfloat)equation[0], (GLfloat)equation[1],
+                                  (GLfloat)equation[2], (GLfloat)equation[3]);
 
+}
+
+GLvoid
+glGetClipPlane(GLenum plane, GLdouble *equation)
+{
+    GLint ind = plane - GL_CLIP_PLANE0;
+    equation[0] = u_state.uClipPlane[ind].v[0];
+    equation[1] = u_state.uClipPlane[ind].v[1];
+    equation[2] = u_state.uClipPlane[ind].v[2];
+    equation[3] = u_state.uClipPlane[ind].v[3];
+}
