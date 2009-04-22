@@ -169,8 +169,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #define glShadeModel(A)
 
-extern GLvoid glEnable(GLenum e);
-extern GLvoid glDisable(GLenum e);
+extern GLvoid   glEnable(GLenum e);
+extern GLvoid   glDisable(GLenum e);
 
 /*  Alpha Test                      */
 extern GLvoid   glAlphaFunc(GLenum func, GLclampf ref);
@@ -194,7 +194,7 @@ extern GLvoid   glTexCoord1f(GLfloat s);
 #define         glTexCoord4d(x, y, z, w)    glTexCoord4f((GLfloat)(x), (GLfloat)(y), (GLfloat)(z), (GLfloat)(w))
 #define         glTexCoord3d(x, y, z)       glTexCoord3f((GLfloat)(x), (GLfloat)(y), (GLfloat)(z))
 #define         glTexCoord2d(x, y)          glTexCoord2f((GLfloat)(x), (GLfloat)(y))
-
+#define         glTexCoord1d(x)             glTexCoord2f((GLfloat)(x))
 
 extern GLvoid   glMultiTexCoord4f(GLenum tex, GLfloat s, GLfloat t, GLfloat r, GLfloat q);
 extern GLvoid   glMultiTexCoord3f(GLenum tex, GLfloat s, GLfloat t, GLfloat r);
@@ -230,12 +230,11 @@ extern GLvoid   glPushMatrix();
 extern GLvoid   glPopMatrix();
 extern GLvoid   glActiveTexture(GLenum texture);
 
-/*  Vertex Shaders              */
 extern GLvoid   glUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, GLfloat *value);
 extern GLvoid   glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, GLfloat *value);
 extern GLvoid   glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, GLfloat *value);
 
-/* Light  */
+/* Lighting  */
 extern GLvoid   glLightf(GLenum light, GLenum pname, GLfloat params);
 extern GLvoid   glLightfv(GLenum light, GLenum pname, GLfloat *params);
 extern GLvoid   glLightModeli(GLenum pname, GLint params);

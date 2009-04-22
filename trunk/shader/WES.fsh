@@ -19,7 +19,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 /* Defines to Enable and disable features	*/
 //#define DEF_ALPHA_TEST
-//#define DEF_TEXTURE
+#define DEF_TEXTURE
 //#define DEF_MULTI_TEXTURE
 #define DEF_FOG
 //#define DEF_CLIPPLANE

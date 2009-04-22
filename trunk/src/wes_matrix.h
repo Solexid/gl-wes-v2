@@ -16,7 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include "wes_gl_defines.h"
+#include "wes_uniform.h"
 
 #ifndef __WES_MATRIX_H__
 #define __WES_MATRIX_H__
@@ -25,7 +25,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #define WES_MODELVIEW_NUM           32
 #define WES_PROJECTION_NUM          2
 #define WES_TEXTURE_NUM             2
-#define WES_TEXTURE_UNITS           8
+#define WES_TEXTURE_UNITS           WES_MULTITEX_NUM
 #define WES_COLOR_NUM               2
 
 /* flags for matrix operations          */

@@ -24,50 +24,48 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #include "wes_shader.h"
 #include "wes_matrix.h"
 
-
-
-#define LocateUniform(A)                            \
+#define LocateUniform(A)                                            \
     u_state.A.loc = wes_gl->glGetUniformLocation(sh_program, #A)
 
 #define UpdateUniform1i(A)                                          \
-    if (u_state.A.mod) {                                         \
-        u_state.A.mod = GL_FALSE;                                \
-        wes_gl->glUniform1i(u_state.A.loc, u_state.A.i);      \
+    if (u_state.A.mod) {                                            \
+        u_state.A.mod = GL_FALSE;                                   \
+        wes_gl->glUniform1i(u_state.A.loc, u_state.A.i);            \
     };
 #define UpdateUniform2i(A)                                          \
-    if (u_state.A.mod) {                                         \
-        u_state.A.mod = GL_FALSE;                                \
-        wes_gl->glUniform2iv(u_state.A.loc, 1, u_state.A.v);      \
+    if (u_state.A.mod) {                                            \
+        u_state.A.mod = GL_FALSE;                                   \
+        wes_gl->glUniform2iv(u_state.A.loc, 1, u_state.A.v);        \
     };
 #define UpdateUniform3i(A)                                          \
-    if (u_state.A.mod) {                                         \
-        u_state.A.mod = GL_FALSE;                                \
-        wes_gl->glUniform3iv(u_state.A.loc, 1, u_state.A.v);      \
+    if (u_state.A.mod) {                                            \
+        u_state.A.mod = GL_FALSE;                                   \
+        wes_gl->glUniform3iv(u_state.A.loc, 1, u_state.A.v);        \
     };
 #define UpdateUniform4i(A)                                          \
-    if (u_state.A.mod) {                                         \
-        u_state.A.mod = GL_FALSE;                                \
-        wes_gl->glUniform4iv(u_state.A.loc, 1, u_state.A.v);      \
+    if (u_state.A.mod) {                                            \
+        u_state.A.mod = GL_FALSE;                                   \
+        wes_gl->glUniform4iv(u_state.A.loc, 1, u_state.A.v);        \
     };
 #define UpdateUniform1f(A)                                          \
-    if (u_state.A.mod) {                                         \
-        u_state.A.mod = GL_FALSE;                                \
-        wes_gl->glUniform1f(u_state.A.loc, u_state.A.f);      \
+    if (u_state.A.mod) {                                            \
+        u_state.A.mod = GL_FALSE;                                   \
+        wes_gl->glUniform1f(u_state.A.loc, u_state.A.f);            \
     };
 #define UpdateUniform2f(A)                                          \
-    if (u_state.A.mod) {                                         \
-        u_state.A.mod = GL_FALSE;                                \
-        wes_gl->glUniform2fv(u_state.A.loc, 1, u_state.A.v);  \
+    if (u_state.A.mod) {                                            \
+        u_state.A.mod = GL_FALSE;                                   \
+        wes_gl->glUniform2fv(u_state.A.loc, 1, u_state.A.v);        \
     };
 #define UpdateUniform3f(A)                                          \
-    if (u_state.A.mod) {                                         \
-        u_state.A.mod = GL_FALSE;                                \
-        wes_gl->glUniform3fv(u_state.A.loc, 1, u_state.A.v);  \
+    if (u_state.A.mod) {                                            \
+        u_state.A.mod = GL_FALSE;                                   \
+        wes_gl->glUniform3fv(u_state.A.loc, 1, u_state.A.v);        \
     };
 #define UpdateUniform4f(A)                                          \
-    if (u_state.A.mod) {                                         \
-        u_state.A.mod = GL_FALSE;                                \
-        wes_gl->glUniform4fv(u_state.A.loc, 1, u_state.A.v);  \
+    if (u_state.A.mod) {                                            \
+        u_state.A.mod = GL_FALSE;                                   \
+        wes_gl->glUniform4fv(u_state.A.loc, 1, u_state.A.v);        \
     };
 
 #define SetUniform1i(A, P)                                          \
@@ -76,43 +74,43 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #define SetUniform1f(A, P)                                          \
     u_state.A.mod = GL_TRUE; u_state.A.f = P
 #define SetUniform2f(A, P0, P1)                                     \
-    u_state.A.mod = GL_TRUE;                                     \
-    u_state.A.v[0] = P0;                                         \
+    u_state.A.mod = GL_TRUE;                                        \
+    u_state.A.v[0] = P0;                                            \
     u_state.A.v[1] = P1;
 #define SetUniform3f(A, P0, P1, P2)                                 \
-    u_state.A.mod = GL_TRUE;                                     \
-    u_state.A.v[0] = P0;                                         \
-    u_state.A.v[1] = P1;                                         \
+    u_state.A.mod = GL_TRUE;                                        \
+    u_state.A.v[0] = P0;                                            \
+    u_state.A.v[1] = P1;                                            \
     u_state.A.v[2] = P2;
 #define SetUniform4f(A, P0, P1, P2, P3)                             \
-    u_state.A.mod = GL_TRUE;                                     \
-    u_state.A.v[0] = P0;                                         \
-    u_state.A.v[1] = P1;                                         \
-    u_state.A.v[2] = P2;                                         \
+    u_state.A.mod = GL_TRUE;                                        \
+    u_state.A.v[0] = P0;                                            \
+    u_state.A.v[1] = P1;                                            \
+    u_state.A.v[2] = P2;                                            \
     u_state.A.v[3] = P3;
 
 #define SetUniform2i    SetUniform2f
 #define SetUniform3i    SetUniform3f
 #define SetUniform4i    SetUniform4f
 
-#define SetUniformIndex(A, P0, P1)                              \
-    u_state.A.mod = GL_TRUE;                                     \
+#define SetUniformIndex(A, P0, P1)                                  \
+    u_state.A.mod = GL_TRUE;                                        \
     u_state.A.v[P0] = P1;
 
 #define SetUniform2fv(A, P)                                         \
-    u_state.A.mod = GL_TRUE;                                     \
-    u_state.A.v[0] = P[0];                                       \
+    u_state.A.mod = GL_TRUE;                                        \
+    u_state.A.v[0] = P[0];                                          \
     u_state.A.v[1] = P[1];
 #define SetUniform3fv(A, P)                                         \
-    u_state.A.mod = GL_TRUE;                                     \
-    u_state.A.v[0] = P[0];                                       \
-    u_state.A.v[1] = P[1];                                       \
+    u_state.A.mod = GL_TRUE;                                        \
+    u_state.A.v[0] = P[0];                                          \
+    u_state.A.v[1] = P[1];                                          \
     u_state.A.v[2] = P[2];
 #define SetUniform4fv(A, P)                                         \
-    u_state. A .mod = GL_TRUE;                                     \
-    u_state. A .v[0] = P[0];                                       \
-    u_state. A .v[1] = P[1];                                       \
-    u_state. A .v[2] = P[2];                                       \
+    u_state. A .mod = GL_TRUE;                                      \
+    u_state. A .v[0] = P[0];                                        \
+    u_state. A .v[1] = P[1];                                        \
+    u_state. A .v[2] = P[2];                                        \
     u_state. A .v[3] = P[3];
 
 uniforms_t      u_state;
@@ -206,7 +204,6 @@ wes_state_loc()
         sprintf(str, "uEnableClipPlane[%i]", i);
         u_state.uEnableClipPlane[i].loc = wes_gl->glGetUniformLocation(sh_program, str);
     }
-
 
     LocateUniform(uEnableFog);
     LocateUniform(uEnableAlphaTest);
@@ -361,6 +358,56 @@ GLvoid wes_state_init()
     SetUniform1f(uAlphaRef, 0.0);
 
     wes_state_update();
+}
+
+
+GLint
+wes_index_envfunc(GLint param)
+{
+    switch(param)
+    {
+        case GL_REPLACE:        return 1;
+        case GL_MODULATE:       return 2;
+        case GL_ADD:            return 3;
+        case GL_ADD_SIGNED:     return 4;
+        case GL_INTERPOLATE:    return 5;
+        case GL_SUBTRACT:       return 6;
+        case GL_DOT3_RGB:       return 7;
+        case GL_DOT3_RGBA:      return 8;
+        case GL_DECAL:          return 9;
+        case GL_BLEND:          return 10;
+        case GL_COMBINE:        return 11;
+        default:                return 0;
+    }
+
+}
+
+GLint
+wes_index_envsrc(GLint param)
+{
+    switch(param)
+    {
+        case GL_PREVIOUS:       return 1;
+        case GL_CONSTANT:       return 2;
+        case GL_PRIMARY_COLOR:  return 3;
+        case GL_TEXTURE:        return 4;
+        default:                return 0;
+    }
+
+}
+
+GLint
+wes_index_envop(GLint param)
+{
+    switch(param)
+    {
+        case GL_SRC_ALPHA:              return 1;
+        case GL_ONE_MINUS_SRC_ALPHA:    return 2;
+        case GL_SRC_COLOR:              return 3;
+        case GL_ONE_MINUS_SRC_COLOR:    return 4;
+        default:                        return 0;
+    }
+
 }
 
 GLvoid
@@ -704,55 +751,6 @@ glActiveTexture(GLenum texture)
 {
     u_activetex = texture;
     wes_gl->glActiveTexture(texture);
-}
-
-GLint
-wes_index_envfunc(GLint param)
-{
-    switch(param)
-    {
-        case GL_REPLACE:        return 1;
-        case GL_MODULATE:       return 2;
-        case GL_ADD:            return 3;
-        case GL_ADD_SIGNED:     return 4;
-        case GL_INTERPOLATE:    return 5;
-        case GL_SUBTRACT:       return 6;
-        case GL_DOT3_RGB:       return 7;
-        case GL_DOT3_RGBA:      return 8;
-        case GL_DECAL:          return 9;
-        case GL_BLEND:          return 10;
-        case GL_COMBINE:        return 11;
-        default:                return 0;
-    }
-
-}
-
-GLint
-wes_index_envsrc(GLint param)
-{
-    switch(param)
-    {
-        case GL_PREVIOUS:       return 1;
-        case GL_CONSTANT:       return 2;
-        case GL_PRIMARY_COLOR:  return 3;
-        case GL_TEXTURE:        return 4;
-        default:                return 0;
-    }
-
-}
-
-GLint
-wes_index_envop(GLint param)
-{
-    switch(param)
-    {
-        case GL_SRC_ALPHA:              return 1;
-        case GL_ONE_MINUS_SRC_ALPHA:    return 2;
-        case GL_SRC_COLOR:              return 3;
-        case GL_ONE_MINUS_SRC_COLOR:    return 4;
-        default:                        return 0;
-    }
-
 }
 
 GLvoid
