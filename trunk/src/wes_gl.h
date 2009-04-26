@@ -258,6 +258,10 @@ extern GLvoid   glLightModeli(GLenum pname, GLint params);
 extern GLvoid   glLightModelfv(GLenum pname, GLfloat *params);
 extern GLvoid   glColorMaterial(GLenum face, GLenum mode);
 
+/* Texture Enviroments */
+extern GLvoid   glTexEnvi(GLenum target, GLenum pname, GLint param);
+extern GLvoid   glTexEnvfv(GLenum target, GLenum pname, GLfloat *param);
+
 /*  Program Objects         */
 extern GLvoid   glUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, GLfloat *value);
 extern GLvoid   glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, GLfloat *value);
