@@ -24,48 +24,45 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #include "wes_shader.h"
 #include "wes_matrix.h"
 
-#define LocateUniform(A)                                            \
-    u_state.A.loc = wes_gl->glGetUniformLocation(sh_program, #A)
-
 #define UpdateUniform1i(A)                                          \
-    if (u_state.A.mod) {                                            \
+    if (u_state.A.mod || sh_program_mod) {                                            \
         u_state.A.mod = GL_FALSE;                                   \
-        wes_gl->glUniform1i(u_state.A.loc, u_state.A.i);            \
+        wes_gl->glUniform1i(sh_program->uloc.A, u_state.A.i);            \
     };
 #define UpdateUniform2i(A)                                          \
-    if (u_state.A.mod) {                                            \
+    if (u_state.A.mod || sh_program_mod) {                                            \
         u_state.A.mod = GL_FALSE;                                   \
-        wes_gl->glUniform2iv(u_state.A.loc, 1, u_state.A.v);        \
+        wes_gl->glUniform2iv(sh_program->uloc.A, 1, u_state.A.v);        \
     };
 #define UpdateUniform3i(A)                                          \
-    if (u_state.A.mod) {                                            \
+    if (u_state.A.mod || sh_program_mod) {                                            \
         u_state.A.mod = GL_FALSE;                                   \
-        wes_gl->glUniform3iv(u_state.A.loc, 1, u_state.A.v);        \
+        wes_gl->glUniform3iv(sh_program->uloc.A, 1, u_state.A.v);        \
     };
 #define UpdateUniform4i(A)                                          \
-    if (u_state.A.mod) {                                            \
+    if (u_state.A.mod || sh_program_mod) {                                            \
         u_state.A.mod = GL_FALSE;                                   \
-        wes_gl->glUniform4iv(u_state.A.loc, 1, u_state.A.v);        \
+        wes_gl->glUniform4iv(sh_program->uloc.A, 1, u_state.A.v);        \
     };
 #define UpdateUniform1f(A)                                          \
-    if (u_state.A.mod) {                                            \
+    if (u_state.A.mod || sh_program_mod) {                                            \
         u_state.A.mod = GL_FALSE;                                   \
-        wes_gl->glUniform1f(u_state.A.loc, u_state.A.f);            \
+        wes_gl->glUniform1f(sh_program->uloc.A, u_state.A.f);            \
     };
 #define UpdateUniform2f(A)                                          \
-    if (u_state.A.mod) {                                            \
+    if (u_state.A.mod || sh_program_mod) {                                            \
         u_state.A.mod = GL_FALSE;                                   \
-        wes_gl->glUniform2fv(u_state.A.loc, 1, u_state.A.v);        \
+        wes_gl->glUniform2fv(sh_program->uloc.A, 1, u_state.A.v);        \
     };
 #define UpdateUniform3f(A)                                          \
-    if (u_state.A.mod) {                                            \
+    if (u_state.A.mod || sh_program_mod) {                          \
         u_state.A.mod = GL_FALSE;                                   \
-        wes_gl->glUniform3fv(u_state.A.loc, 1, u_state.A.v);        \
+        wes_gl->glUniform3fv(sh_program->uloc.A, 1, u_state.A.v);   \
     };
 #define UpdateUniform4f(A)                                          \
-    if (u_state.A.mod) {                                            \
+    if (u_state.A.mod || sh_program_mod) {                          \
         u_state.A.mod = GL_FALSE;                                   \
-        wes_gl->glUniform4fv(u_state.A.loc, 1, u_state.A.v);        \
+        wes_gl->glUniform4fv(sh_program->uloc.A, 1, u_state.A.v);   \
     };
 
 #define SetUniform1i(A, P)                                          \
@@ -120,6 +117,20 @@ GLvoid
 wes_state_update()
 {
     int i;
+    progstate_t s[1];
+    s->DEF_ALPHA_TEST = (u_state.uEnableAlphaTest.i) ? (u_state.uAlphaFunc.i) : (0);
+    s->DEF_TEXTURE0_ENV = u_state.uTexture[0].Func.v[0];
+    s->DEF_TEXTURE1_ENV = u_state.uTexture[1].Func.v[0];
+    s->DEF_TEXTURE2_ENV = u_state.uTexture[2].Func.v[0];
+    s->DEF_TEXTURE3_ENV = u_state.uTexture[3].Func.v[0];
+    s->DEF_FOG = (u_state.uEnableFog.i);
+    s->DEF_CLIPPLANE = (u_state.uEnableClipPlane[0].i || u_state.uEnableClipPlane[1].i ||
+                        u_state.uEnableClipPlane[2].i || u_state.uEnableClipPlane[3].i ||
+                        u_state.uEnableClipPlane[4].i || u_state.uEnableClipPlane[5].i ||
+                        u_state.uEnableClipPlane[6].i || u_state.uEnableClipPlane[7].i);
+
+    wes_choose_program(s);
+    wes_gl->glUseProgram(sh_program->prog);
 
     UpdateUniform1i(uEnableRescaleNormal);
     UpdateUniform1i(uEnableNormalize);
@@ -174,120 +185,21 @@ wes_state_update()
     UpdateUniform1i(uAlphaFunc);
     UpdateUniform1f(uAlphaRef);
 
-    if (m_modelview_mod){
-        wes_gl->glUniformMatrix4fv(u_state.uMV.loc, 1, GL_FALSE, m_modelview->data);
+    if (m_modelview_mod || sh_program_mod){
+        wes_gl->glUniformMatrix4fv(sh_program->uloc.uMV, 1, GL_FALSE, m_modelview->data);
     }
-    if (wes_matrix_mvp()){
-        wes_gl->glUniformMatrix4fv(u_state.uMVP.loc, 1, GL_FALSE, m_modelview_proj->data);
+    if (wes_matrix_mvp() || sh_program_mod){
+        wes_gl->glUniformMatrix4fv(sh_program->uloc.uMVP, 1, GL_FALSE, m_modelview_proj->data);
     }
-    if (wes_matrix_normal()){
-        wes_gl->glUniformMatrix3fv(u_state.uMVIT.loc, 1, GL_FALSE, m_modelview_normal->data);
+    if (wes_matrix_normal() || sh_program_mod){
+        wes_gl->glUniformMatrix3fv(sh_program->uloc.uMVIT, 1, GL_FALSE, m_modelview_normal->data);
     }
     wes_matrix_update();
-}
-
-GLvoid
-wes_state_loc()
-{
-    int i;
-    char str[32];
-
-    LocateUniform(uEnableRescaleNormal);
-    LocateUniform(uEnableNormalize);
-    for(i = 0; i != WES_MULTITEX_NUM; i++){
-        sprintf(str, "uEnableTextureGen[%i]", i);
-        u_state.uEnableTextureGen[i].loc      = wes_gl->glGetUniformLocation(sh_program, str);
-    }
-
-    for(i = 0; i != WES_CLIPPLANE_NUM; i++){
-        sprintf(str, "uEnableClipPlane[%i]", i);
-        u_state.uEnableClipPlane[i].loc = wes_gl->glGetUniformLocation(sh_program, str);
-    }
-
-    LocateUniform(uEnableFog);
-    LocateUniform(uEnableAlphaTest);
-    LocateUniform(uEnableFogCoord);
-
-    u_state.uEnableLighting.loc         = wes_gl->glGetUniformLocation(sh_program, "uEnableLighting");
-    for(i = 0; i != WES_LIGHT_NUM; i++){
-        sprintf(str, "uEnableLight[%i]", i);
-        u_state.uEnableLight[i].loc     = wes_gl->glGetUniformLocation(sh_program, str);
-        sprintf(str, "uLight[%i].Position", i);
-        u_state.uLight[i].Position.loc = wes_gl->glGetUniformLocation(sh_program, str);
-        sprintf(str, "uLight[%i].Attenuation", i);
-        u_state.uLight[i].Attenuation.loc = wes_gl->glGetUniformLocation(sh_program, str);
-        sprintf(str, "uLight[%i].ColorAmbient", i);
-        u_state.uLight[i].ColorAmbient.loc  = wes_gl->glGetUniformLocation(sh_program, str);
-        sprintf(str, "uLight[%i].ColorDiffuse", i);
-        u_state.uLight[i].ColorDiffuse.loc  = wes_gl->glGetUniformLocation(sh_program, str);
-        sprintf(str, "uLight[%i].ColorSpec", i);
-        u_state.uLight[i].ColorSpec.loc  = wes_gl->glGetUniformLocation(sh_program, str);
-        sprintf(str, "uLight[%i].SpotDir", i);
-        u_state.uLight[i].SpotDir.loc  = wes_gl->glGetUniformLocation(sh_program, str);
-        sprintf(str, "uLight[%i].SpotVar", i);
-        u_state.uLight[i].SpotVar.loc  = wes_gl->glGetUniformLocation(sh_program, str);
-    }
-
-    LocateUniform(uLightModel.ColorAmbient);
-    LocateUniform(uLightModel.TwoSided);
-    LocateUniform(uLightModel.LocalViewer);
-    LocateUniform(uLightModel.ColorControl);
-
-    u_state.uRescaleFactor.loc  = wes_gl->glGetUniformLocation(sh_program, "uRescaleFactor");
-
-    u_state.uMaterial[0].ColorAmbient.loc  = wes_gl->glGetUniformLocation(sh_program, "uMaterial[0].ColorAmbient");
-    u_state.uMaterial[0].ColorDiffuse.loc  = wes_gl->glGetUniformLocation(sh_program, "uMaterial[0].ColorDiffuse");
-    u_state.uMaterial[0].ColorSpec.loc     = wes_gl->glGetUniformLocation(sh_program, "uMaterial[0].ColorSpec");
-    u_state.uMaterial[0].ColorEmissive.loc = wes_gl->glGetUniformLocation(sh_program, "uMaterial[0].ColorEmissive");
-    u_state.uMaterial[0].SpecExponent.loc  = wes_gl->glGetUniformLocation(sh_program, "uMaterial[0].SpecExponent");
-    u_state.uMaterial[0].ColorMaterial.loc  = wes_gl->glGetUniformLocation(sh_program, "uMaterial[0].ColorMaterial");
-
-    u_state.uMaterial[1].ColorAmbient.loc  = wes_gl->glGetUniformLocation(sh_program, "uMaterial[1].ColorAmbient");
-    u_state.uMaterial[1].ColorDiffuse.loc  = wes_gl->glGetUniformLocation(sh_program, "uMaterial[1].ColorDiffuse");
-    u_state.uMaterial[1].ColorSpec.loc     = wes_gl->glGetUniformLocation(sh_program, "uMaterial[1].ColorSpec");
-    u_state.uMaterial[1].ColorEmissive.loc = wes_gl->glGetUniformLocation(sh_program, "uMaterial[1].ColorEmissive");
-    u_state.uMaterial[1].SpecExponent.loc  = wes_gl->glGetUniformLocation(sh_program, "uMaterial[1].SpecExponent");
-    u_state.uMaterial[1].ColorMaterial.loc  = wes_gl->glGetUniformLocation(sh_program, "uMaterial[1].ColorMaterial");
-
-    u_state.uFogMode.loc    = wes_gl->glGetUniformLocation(sh_program, "uFogMode");
-    u_state.uFogDensity.loc = wes_gl->glGetUniformLocation(sh_program, "uFogDensity");
-    u_state.uFogStart.loc   = wes_gl->glGetUniformLocation(sh_program, "uFogStart");
-    u_state.uFogEnd.loc     = wes_gl->glGetUniformLocation(sh_program, "uFogEnd");
-    u_state.uFogColor.loc   = wes_gl->glGetUniformLocation(sh_program, "uFogColor");
-
-    for(i = 0; i != WES_CLIPPLANE_NUM; i++){
-        sprintf(str, "uClipPlane[%i]", i);
-        u_state.uClipPlane[i].loc = wes_gl->glGetUniformLocation(sh_program, str);
-    }
-
-    u_state.uMVP.loc    = wes_gl->glGetUniformLocation(sh_program, "uMVP");
-    u_state.uMV.loc     = wes_gl->glGetUniformLocation(sh_program, "uMV");
-    u_state.uMVIT.loc   = wes_gl->glGetUniformLocation(sh_program, "uMVIT");
-
-    u_state.uAlphaFunc.loc  = wes_gl->glGetUniformLocation(sh_program, "uAlphaFunc");
-    u_state.uAlphaRef.loc   = wes_gl->glGetUniformLocation(sh_program, "uAlphaRef");
-
-    for(i = 0; i != WES_MULTITEX_NUM; i++){
-        sprintf(str, "uTexture[%i].Unit", i);
-        u_state.uTexture[i].Unit.loc   = wes_gl->glGetUniformLocation(sh_program, str);
-        sprintf(str, "uTexture[%i].EnvColor", i);
-        u_state.uTexture[i].EnvColor.loc   = wes_gl->glGetUniformLocation(sh_program, str);
-        sprintf(str, "uTexture[%i].Func", i);
-        u_state.uTexture[i].Func.loc   = wes_gl->glGetUniformLocation(sh_program, str);
-        sprintf(str, "uTexture[%i].Arg0", i);
-        u_state.uTexture[i].Arg0.loc   = wes_gl->glGetUniformLocation(sh_program, str);
-        sprintf(str, "uTexture[%i].Arg1", i);
-        u_state.uTexture[i].Arg1.loc   = wes_gl->glGetUniformLocation(sh_program, str);
-        sprintf(str, "uTexture[%i].Arg2", i);
-        u_state.uTexture[i].Arg2.loc   = wes_gl->glGetUniformLocation(sh_program, str);
-    }
+    sh_program_mod = GL_FALSE;
 }
 
 GLvoid wes_state_init()
 {
-
-    wes_gl->glUseProgram(sh_program);
-    wes_state_loc();
     u_activetex = 0;
 
     int i;
@@ -342,7 +254,6 @@ GLvoid wes_state_init()
     SetUniform1f(uFogEnd, 1.0);
     SetUniform4f(uFogColor, 0.0, 0.0, 0.0, 0.0);
 
-
     for(i = 0; i < WES_MULTITEX_NUM; i++){
         SetUniform1i(uTexture[i].Unit, i);
         SetUniform3i(uTexture[i].Func, 0, 0, 0);
@@ -353,7 +264,7 @@ GLvoid wes_state_init()
     }
     SetUniform3i(uTexture[0].Func, 2, 2, 2);
 
-    SetUniform1i(uAlphaFunc, 0);
+    SetUniform1i(uAlphaFunc, 8);
     SetUniform1f(uAlphaRef, 0.0);
 
     wes_state_update();
@@ -368,14 +279,14 @@ wes_index_envfunc(GLint param)
         case GL_REPLACE:        return 1;
         case GL_MODULATE:       return 2;
         case GL_ADD:            return 3;
-        case GL_ADD_SIGNED:     return 4;
-        case GL_INTERPOLATE:    return 5;
-        case GL_SUBTRACT:       return 6;
-        case GL_DOT3_RGB:       return 7;
-        case GL_DOT3_RGBA:      return 8;
-        case GL_DECAL:          return 9;
-        case GL_BLEND:          return 10;
-        case GL_COMBINE:        return 11;
+        case GL_DECAL:          return 4;
+        case GL_BLEND:          return 5;
+        case GL_COMBINE:        return 6;
+        case GL_ADD_SIGNED:     return 7;
+        case GL_INTERPOLATE:    return 8;
+        case GL_SUBTRACT:       return 9;
+        case GL_DOT3_RGB:       return 10;
+        case GL_DOT3_RGBA:      return 11;
         default:                return 0;
     }
 
@@ -677,21 +588,21 @@ GLvoid
 glAlphaFunc(GLenum func, GLclampf ref)
 {
     if (func == GL_NEVER){
-        SetUniform1i(uAlphaFunc, 0);
-    } else if (func == GL_LESS){
         SetUniform1i(uAlphaFunc, 1);
-    } else if (func == GL_EQUAL){
+    } else if (func == GL_LESS){
         SetUniform1i(uAlphaFunc, 2);
-    } else if (func == GL_LEQUAL){
+    } else if (func == GL_EQUAL){
         SetUniform1i(uAlphaFunc, 3);
-    } else if (func == GL_GREATER){
+    } else if (func == GL_LEQUAL){
         SetUniform1i(uAlphaFunc, 4);
-    } else if (func == GL_NOTEQUAL){
+    } else if (func == GL_GREATER){
         SetUniform1i(uAlphaFunc, 5);
-    } else if (func == GL_GEQUAL){
+    } else if (func == GL_NOTEQUAL){
         SetUniform1i(uAlphaFunc, 6);
-    } else if (func == GL_ALWAYS){
+    } else if (func == GL_GEQUAL){
         SetUniform1i(uAlphaFunc, 7);
+    } else if (func == GL_ALWAYS){
+        SetUniform1i(uAlphaFunc, 8);
     }
     SetUniform1f(uAlphaRef, ref);
 }

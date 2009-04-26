@@ -45,7 +45,6 @@ typedef struct uniforms_s   uniforms_t;
 /* Uniform types */
 struct uvec4_s{
     GLboolean   mod;
-    GLuint      loc;
     union {
         GLfloat v[4];
         struct {
@@ -56,7 +55,6 @@ struct uvec4_s{
 
 struct uvec3_s{
     GLboolean   mod;
-    GLuint      loc;
     union {
         GLfloat v[3];
         struct {
@@ -67,7 +65,6 @@ struct uvec3_s{
 
 struct uvec2_s{
     GLboolean   mod;
-    GLuint      loc;
     union {
         GLfloat v[2];
         struct {
@@ -78,7 +75,6 @@ struct uvec2_s{
 
 struct uivec4_s{
     GLboolean   mod;
-    GLuint      loc;
     union {
         GLint v[4];
         struct {
@@ -89,7 +85,6 @@ struct uivec4_s{
 
 struct uivec3_s{
     GLboolean   mod;
-    GLuint      loc;
     union {
         GLint v[3];
         struct {
@@ -100,7 +95,6 @@ struct uivec3_s{
 
 struct uivec2_s{
     GLboolean   mod;
-    GLuint      loc;
     union {
         GLint v[2];
         struct {
@@ -111,26 +105,21 @@ struct uivec2_s{
 
 struct ufloat_s{
     GLboolean   mod;
-    GLuint  loc;
     GLfloat f;
 };
 
 struct uint_s{
     GLboolean   mod;
-    GLuint  loc;
     GLint   i;
 };
 
 struct umat2_s{
-    GLuint  loc;
 };
 
 struct umat3_s{
-    GLuint  loc;
 };
 
 struct umat4_s{
-    GLuint  loc;
 };
 
 struct uniforms_s {

@@ -54,8 +54,6 @@ wes_vertbuffer_flush()
         return;
     }
 
-    wes_gl->glUseProgram(sh_program);
-
     wes_state_update();
 
     wes_gl->glEnableVertexAttribArray(WES_APOS);
