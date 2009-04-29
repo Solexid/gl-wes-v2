@@ -142,8 +142,9 @@ void ComputeTexGen(int i){
 		vec4 row = vec4((uTexGenMat[i])[0][3], (uTexGenMat[i])[1][3], (uTexGenMat[i])[2][3], (uTexGenMat[i])[3][3]);
 		vTexCoord[i].w = dot(aPosition, row);
 	}
-	
-	/*
+
+	/* Must obtain full MVIT for these transforms*/
+#if 0
 	if (uTexGenMode[i].x == GEN_OBJLINEAR){
 		vTexCoord[i].x = dot(lEye, (uTexGenMat[i])[0]);
 	}
@@ -155,7 +156,8 @@ void ComputeTexGen(int i){
 	}
 	if (uTexGenMode[i].w == GEN_OBJLINEAR){
 		vTexCoord[i].w = dot(lEye, (uTexGenMat[i])[3]);
-	}*/
+	}
+#endif
 	
 	if (uTexGenMode[i].x == GEN_SPHEREMAP || uTexGenMode[i].y == GEN_SPHEREMAP || 
 		uTexGenMode[i].x == GEN_REFLECTMAP || uTexGenMode[i].y == GEN_REFLECTMAP ||

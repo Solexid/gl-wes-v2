@@ -57,6 +57,7 @@ wes_vertbuffer_flush()
     wes_state_update();
 
     wes_gl->glEnableVertexAttribArray(WES_APOS);
+
     wes_gl->glVertexAttribPointer(WES_APOS, vt_possize, GL_FLOAT, GL_FALSE, sizeof(vertex_t), vt_vbuffer);
     if (vt_coordsize[0]){
         wes_gl->glEnableVertexAttribArray(WES_ATEXCOORD0);
@@ -152,6 +153,7 @@ wes_begin_init()
         vt_const->coord[i].s = vt_const->coord[i].t = vt_const->coord[i].r = 0.0f;
         vt_const->coord[i].q = 1.0;
     }
+    *vt_current = *vt_const;
 }
 
 GLvoid

@@ -64,6 +64,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #define WES_SRC_CONSTANT					2
 #define WES_SRC_PRIMARY_COLOR				3
 #define WES_SRC_TEXTURE						4
+#define WES_SRC_TEXTURE0					5
+#define WES_SRC_TEXTURE1					6
+#define WES_SRC_TEXTURE2					7
+#define WES_SRC_TEXTURE3					8
 
 #define WES_OP_ALPHA						1
 #define WES_OP_ONE_MINUS_ALPHA				2
