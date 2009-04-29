@@ -16,7 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include "wes_uniform.h"
+#include "wes_state.h"
 
 #ifndef __WES_BEGIN_H__
 #define __WES_BEGIN_H__

@@ -20,7 +20,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #include <string.h>
 #include <stdio.h>
 #include "wes.h"
-#include "wes_uniform.h"
+#include "wes_state.h"
 
 #ifndef __WES_SHADER_H__
 #define __WES_SHADER_H__
@@ -38,14 +38,14 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 
 /*  shader defines       */
-#define WES_ALPHA_NEVER                     0
-#define WES_ALPHA_LESS               		1
-#define WES_ALPHA_EQUAL                     2
-#define WES_ALPHA_LEQUAL                    3
-#define WES_ALPHA_GREATER                   4
-#define WES_ALPHA_NOTEQUAL                  5
-#define WES_ALPHA_GEQUAL                    6
-#define WES_ALPHA_ALWAYS                    7
+#define WES_ALPHA_NEVER                     1
+#define WES_ALPHA_LESS               		2
+#define WES_ALPHA_EQUAL                     3
+#define WES_ALPHA_LEQUAL                    4
+#define WES_ALPHA_GREATER                   5
+#define WES_ALPHA_NOTEQUAL                  6
+#define WES_ALPHA_GEQUAL                    7
+#define WES_ALPHA_ALWAYS                    8
 
 #define WES_FUNC_NONE						0
 #define WES_FUNC_REPLACE					1
@@ -135,13 +135,20 @@ struct uniformloc_s
 
 struct progstate_s
 {
-    GLuint  DEF_ALPHA_TEST;
-    GLuint  DEF_TEXTURE0_ENV;
-    GLuint  DEF_TEXTURE1_ENV;
-    GLuint  DEF_TEXTURE2_ENV;
-    GLuint  DEF_TEXTURE3_ENV;
-    GLuint  DEF_FOG;
-    GLuint  DEF_CLIPPLANE;
+    int uEnableAlphaTest;
+    int uAlphaFunc;
+
+    int uEnableFog;
+    int uEnableClipPlane;
+
+    struct {
+        GLint Mode;
+        GLint RGBCombine, AlphaCombine;
+        struct {
+            GLint RGBSrc, AlphaSrc;
+            GLint RGBOp, AlphaOp;
+        } Arg[3];
+    } uTexture[WES_MULTITEX_NUM];
 };
 
 struct program_s

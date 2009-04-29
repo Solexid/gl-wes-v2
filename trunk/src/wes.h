@@ -24,6 +24,11 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 #define     WES_OGLESV2_FUNCTIONCOUNT   141
 
+#define WES_LIGHT_NUM           8
+#define WES_CLIPPLANE_NUM       6
+#define WES_MULTITEX_NUM        4
+#define WES_FACE_NUM            2
+
 //WES2 Defines:
 #ifdef WES_OUTPUT_ERRORS
 #define PRINT_ERROR(...)  fprintf(stderr, __VA_ARGS__); fflush(stderr)

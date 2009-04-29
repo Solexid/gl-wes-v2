@@ -66,10 +66,10 @@ const char* EGLErrorString(){
 		case EGL_BAD_SURFACE:			return "EGL_BAD_SURFACE";
 		default:						return "unknown";
 	}
-}
+};
 
 void
-wes_context_open(uint32_t w, uint32_t h, uint32_t vsync)
+wes_context_open(unsigned int  w, unsigned int  h, unsigned int  vsync)
 {
     Device = (EGLNativeDisplayType) EGL_DEFAULT_DISPLAY;
     EGLint nConfigs;

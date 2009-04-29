@@ -21,7 +21,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #include <stdio.h>
 #include "wes.h"
 #include "wes_matrix.h"
-#include "wes_uniform.h"
+#include "wes_state.h"
 
 /* global variables */
 matrix4_t   *m_current;

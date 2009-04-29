@@ -16,13 +16,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#ifndef __WES_UNIFORM_H__
-#define __WES_UNIFORM_H__
+#ifndef __WES_STATE_H__
+#define __WES_STATE_H__
 
-#define WES_LIGHT_NUM           8
-#define WES_CLIPPLANE_NUM       6
-#define WES_MULTITEX_NUM        4
-#define WES_FACE_NUM            2
+#include "wes_shader.h"
+
+
 
 typedef struct uvec4_s      uvec4_t;
 typedef struct uvec3_s      uvec3_t;
@@ -132,7 +131,7 @@ struct uniforms_s {
     ubool_t     uEnableLight[WES_LIGHT_NUM];
     ubool_t     uEnableColorMaterial;
     ubool_t     uEnableFog;
-    ubool_t     uEnableAlphaTest;
+    //ubool_t     uEnableAlphaTest;
     ubool_t     uEnableFogCoord;
 
     struct {
@@ -154,10 +153,6 @@ struct uniforms_s {
     } uLightModel;
 
     struct {
-        uivec3_t        Func;		// {Tex function, RGB function, Alpha function}
-        uivec4_t        Arg0;		// {RGB Src, RGB Op, Alpha Src, Alpha Op}
-        uivec4_t        Arg1;		// {RGB Src, RGB Op, Alpha Src, Alpha Op}
-        uivec4_t        Arg2;		// {RGB Src, RGB Op, Alpha Src, Alpha Op}
         uvec4_t         EnvColor;
         usampler2d_t    Unit;
     } uTexture[WES_MULTITEX_NUM];
@@ -177,13 +172,15 @@ struct uniforms_s {
     umat4_t     uMV;
     umat4_t     uMVIT;
 
-    uint_t      uAlphaFunc;
+    //uint_t      uAlphaFunc;
     ufloat_t    uAlphaRef;
 };
 
 //variables
-extern uniforms_t   u_state;
+extern uniforms_t   u_uniform;
 extern GLenum       u_activetex;
+extern progstate_t  u_progstate;
+
 
 extern GLvoid       wes_state_init();
 extern GLvoid       wes_state_update();
