@@ -22,5 +22,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #define __WES_FRAGMENT_H__
 
 extern GLvoid wes_frag_build(char* buff, progstate_t *s);
+extern GLvoid wes_frag_tex(char* buff, progstate_t *s);
 
 #endif

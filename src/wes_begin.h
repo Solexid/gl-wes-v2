@@ -22,8 +22,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #define __WES_BEGIN_H__
 
 /* Buffer sizes*/
-#define WES_BUFFER_COUNT        (8000)
-#define WES_INDEX_COUNT         (8000)
+#define WES_BUFFER_COUNT        (16000)
+#define WES_INDEX_COUNT         (16000)
 
 //offsets within Vertex struct
 #define WES_OFFSET_VERT        0

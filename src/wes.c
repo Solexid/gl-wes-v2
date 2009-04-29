@@ -29,10 +29,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     #define dlopen(A, B)    LoadLibrary(A)
     #define dlsym(A, B)     GetProcAddress(A, B)
     #define dlclose(A)      FreeLibrary(A)
-    const char* wes_libname = "libGLESv2.dll";
 #elif defined(POSIX)
     #include <dlfcn.h>
-    const char* wes_libname = "libGLESv2.so";
 #endif
 
 void*           wes_libhandle = NULL;
@@ -187,7 +185,7 @@ const char* glfuncnames[] =
 
 
 GLvoid
-wes_init()
+wes_init(const char *gles2)
 {
     int i;
     void** ptr;
@@ -195,13 +193,13 @@ wes_init()
     wes_gl = malloc(sizeof(gles2lib_t));
     if (wes_gl == NULL)
     {
-        PRINT_ERROR("Could not load Allocate mem: %s", wes_libname);
+        PRINT_ERROR("Could not load Allocate mem: %s", gles2);
     }
 
-    wes_libhandle = dlopen(wes_libname, RTLD_LAZY);
+    wes_libhandle = dlopen(gles2, RTLD_LAZY);
     if (wes_libhandle == NULL)
     {
-        PRINT_ERROR("Could not load OpenGL ES 2 runtime library: %s", wes_libname);
+        PRINT_ERROR("Could not load OpenGL ES 2 runtime library: %s", gles2);
     }
 
     ptr = (void**) wes_gl;
@@ -210,7 +208,8 @@ wes_init()
         void* pfunc = dlsym(wes_libhandle, glfuncnames[i]);
         if (pfunc == NULL)
         {
-            PRINT_ERROR("Could not find %s in %s", glfuncnames[i], wes_libname);
+            PRINT_ERROR("Could not find %s in %s", glfuncnames[i], gles2
+            );
         }
         *ptr++ = pfunc;
     }
