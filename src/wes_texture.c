@@ -58,25 +58,27 @@ GLvoid
 glTexImage2D(GLenum target, GLint level, GLenum internalFormat, GLsizei width, GLsizei height,
            GLint border, GLenum format, GLenum type, const GLvoid *pixels)
 {
+    GLvoid* data = pixels;
+
     /* conversion routines */
     if (format == GL_BGR){
-        GLvoid* data = malloc(width * height * 3);
+        data = malloc(width * height * 3);
         wes_convert_BGR2RGB((GLubyte*) pixels, (GLubyte*) data, width * height * 3);
-        wes_gl->glTexImage2D(target, level, GL_RGB, width, height, 0, GL_RGB, type, data);
-        free(data);
+        format = GL_RGB;
     } else if (format == GL_BGRA){
-        GLvoid* data = malloc(width * height * 4);
+        data = malloc(width * height * 4);
         wes_convert_BGRA2RGBA((GLubyte*) pixels, (GLubyte*) data, width * height * 4);
-        wes_gl->glTexImage2D(target, level, GL_RGBA, width, height, 0, GL_RGBA, type, data);
-        free(data);
+        format = GL_RGBA;
     } else if (format == GL_INTENSITY){
-        GLvoid* data = malloc(width * height * 2);
+        data = malloc(width * height * 2);
         wes_convert_I2LA(pixels, data, width * height * 2);
-        wes_gl->glTexImage2D(target, level, GL_LUMINANCE_ALPHA, width, height, 0, GL_LUMINANCE_ALPHA, type, data);
-        free(data);
-    } else {
-        wes_gl->glTexImage2D(target, level, format, width, height, 0, format, type, pixels);
+        format = GL_LUMINANCE_ALPHA;
     }
+
+    wes_gl->glTexImage2D(target, level, format, width, height, 0, format, type, data);
+
+    if (data != pixels)
+        free(data);
 }
 
 GLvoid

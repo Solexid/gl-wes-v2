@@ -260,6 +260,7 @@ extern GLvoid   glColorMaterial(GLenum face, GLenum mode);
 
 /* Texture Enviroments */
 extern GLvoid   glTexEnvi(GLenum target, GLenum pname, GLint param);
+#define         glTexEnvf(A,B,C)            glTexEnvi((GLenum)A, (GLenum)B, (GLint)C)
 extern GLvoid   glTexEnvfv(GLenum target, GLenum pname, GLfloat *param);
 
 /*  Program Objects         */
@@ -274,7 +275,6 @@ extern GLvoid   glFogfv(GLenum pname, GLfloat *param);
 
 /*  Alpha Test  */
 extern GLvoid   glAlphaFunc(GLenum func, GLclampf ref);
-
 
 /*  Texture     */
 extern GLvoid   glTexImage2D(GLenum target, GLint level, GLenum internalFormat, GLsizei width, GLsizei height,

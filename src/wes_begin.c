@@ -23,7 +23,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #include "wes_begin.h"
 #include "wes_shader.h"
 #include "wes_matrix.h"
-#include "wes_uniform.h"
+#include "wes_state.h"
 
 GLenum          vt_mode;
 GLuint          vt_count;
