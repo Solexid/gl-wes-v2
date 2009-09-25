@@ -40,6 +40,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define WES_OFFSET_TEXCOORD3   27
 
 typedef struct vertex_s vertex_t;
+typedef struct attrib_ptr_s attrib_ptr_t;
 
 struct vertex_s {
     GLfloat x, y, z, w;             //Position , 2-4 elements
@@ -52,8 +53,18 @@ struct vertex_s {
     } coord[WES_MULTITEX_NUM];
 };
 
+struct attrib_ptr_s {
+    GLboolean   isenabled;
+    GLint       size;
+    GLenum      type;
+    GLsizei     stride;
+    const GLvoid *ptr;
+};
+
 //function declarations:
 extern GLvoid wes_begin_init();
 extern GLvoid wes_begin_destroy();
+extern GLvoid wes_vertbuffer_flush();
+
 
 #endif

@@ -23,9 +23,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define __WES_CONFIG_H__
 
 /*
-if defined WES will output errors to stderr, otherwise they are ignored
+if defined WES will output errors to stdout, otherwise they are ignored
 */
 #define     WES_OUTPUT_ERRORS
 
+#define     WES_PRINT_SHADER
 
 #endif

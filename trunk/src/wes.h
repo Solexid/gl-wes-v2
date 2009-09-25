@@ -18,9 +18,9 @@ License along with this library; if not, write to the Free
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-
 #include "wes_config.h"
 #include "wes_gl_defines.h"
+#include <stdio.h>
 
 #ifndef __WES_H__
 #define __WES_H__
@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 //WES2 Defines:
 #ifdef WES_OUTPUT_ERRORS
-#define PRINT_ERROR(...)  fprintf(stderr, __VA_ARGS__); fflush(stderr)
+#define PRINT_ERROR(...)        fprintf(stdout, __VA_ARGS__); fflush(stdout)
 #else
 #define PRINT_ERROR(...)
 #endif
@@ -189,6 +189,6 @@ struct gles2lib_s
 
 extern gles2lib_t* wes_gl;
 
-extern GLvoid wes_init();
+extern GLvoid wes_init(const char *gles2);
 extern GLvoid wes_destroy();
 #endif

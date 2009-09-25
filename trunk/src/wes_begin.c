@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 GLenum          vt_mode;
 GLuint          vt_count;
+attrib_ptr_t    vt_attrib_pointer[WES_ANUM];
 vertex_t        vt_vbuffer[WES_BUFFER_COUNT];
 GLuint          vt_vbuffer_count;
 GLshort         vt_ibuffer[WES_INDEX_COUNT];
@@ -39,14 +40,27 @@ vertex_t        vt_const[1];
 GLuint          vt_possize, vt_color0size, vt_color1size,
                 vt_coordsize[WES_MULTITEX_NUM], vt_normalsize, vt_fogcoordsize;
 
+
 GLenum          vt_clienttex;
 
 GLvoid
 wes_reset()
 {
+    int i;
     vt_mode = 0;
     vt_count = 0;
     *vt_current = *vt_const;
+
+    for(i = 0; i < WES_ANUM; i++)
+    {
+        if (vt_attrib_pointer[i].isenabled){
+            wes_gl->glEnableVertexAttribArray(i);
+            wes_gl->glVertexAttribPointer(i, vt_attrib_pointer[i].size, vt_attrib_pointer[i].type,
+                GL_FALSE, vt_attrib_pointer[i].stride, vt_attrib_pointer[i].ptr);
+        } else {
+            wes_gl->glDisableVertexAttribArray(i);
+        }
+    }
 }
 
 
@@ -134,6 +148,7 @@ wes_vertbuffer_flush()
     } else {
         wes_gl->glDrawArrays(vt_mode, 0, vt_count);
     }
+
     wes_reset();
 }
 
@@ -157,6 +172,15 @@ wes_begin_init()
         vt_const->coord[i].q = 1.0;
     }
     *vt_current = *vt_const;
+
+    for(i = 0 ; i != WES_ANUM; i++){
+        vt_attrib_pointer[i].isenabled = GL_FALSE;
+        vt_attrib_pointer[i].size = 0;
+        vt_attrib_pointer[i].type = 0;
+        vt_attrib_pointer[i].stride = 0;
+        vt_attrib_pointer[i].ptr = NULL;
+    }
+
 }
 
 GLvoid
@@ -411,62 +435,112 @@ glSecondaryColor3f(GLfloat r, GLfloat g, GLfloat b){
 GLvoid
 glEnd()
 {
-    wes_vertbuffer_flush();
+    //wes_vertbuffer_flush();
 }
 
 GLvoid
 glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr)
 {
+    wes_vertbuffer_flush();
+    vt_attrib_pointer[WES_APOS].isenabled = GL_TRUE;
+    vt_attrib_pointer[WES_APOS].size = size;
+    vt_attrib_pointer[WES_APOS].type = type;
+    vt_attrib_pointer[WES_APOS].stride = stride;
+    vt_attrib_pointer[WES_APOS].ptr = ptr;
     wes_gl->glVertexAttribPointer(WES_APOS, size, type, GL_FALSE, stride, ptr);
 }
 
 GLvoid
 glNormalPointer(GLenum type, GLsizei stride, const GLvoid *ptr)
 {
+    wes_vertbuffer_flush();
+    vt_attrib_pointer[WES_ANORMAL].isenabled = GL_TRUE;
+    vt_attrib_pointer[WES_ANORMAL].size = 3;
+    vt_attrib_pointer[WES_ANORMAL].type = type;
+    vt_attrib_pointer[WES_ANORMAL].stride = stride;
+    vt_attrib_pointer[WES_ANORMAL].ptr = ptr;
     wes_gl->glVertexAttribPointer(WES_ANORMAL, 3, type, GL_FALSE, stride, ptr);
 }
 
 GLvoid
 glColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr)
 {
+    wes_vertbuffer_flush();
+    vt_attrib_pointer[WES_ACOLOR0].isenabled = GL_TRUE;
+    vt_attrib_pointer[WES_ACOLOR0].size = size;
+    vt_attrib_pointer[WES_ACOLOR0].type = type;
+    vt_attrib_pointer[WES_ACOLOR0].stride = stride;
+    vt_attrib_pointer[WES_ACOLOR0].ptr = ptr;
     wes_gl->glVertexAttribPointer(WES_ACOLOR0, size, type, GL_FALSE, stride, ptr);
 }
 
 GLvoid
 glTexCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr)
 {
-    wes_gl->glVertexAttribPointer(WES_ATEXCOORD0 + vt_clienttex, size, type, GL_FALSE, stride, ptr);
+    int i = WES_ATEXCOORD0 + vt_clienttex;
+    wes_vertbuffer_flush();
+    vt_attrib_pointer[i].isenabled = GL_TRUE;
+    vt_attrib_pointer[i].size = size;
+    vt_attrib_pointer[i].type = type;
+    vt_attrib_pointer[i].stride = stride;
+    vt_attrib_pointer[i].ptr = ptr;
+    wes_gl->glVertexAttribPointer(i, size, type, GL_FALSE, stride, ptr);
 }
 
 GLvoid
 glSecondaryColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *ptr)
 {
+    wes_vertbuffer_flush();
+    vt_attrib_pointer[WES_ACOLOR1].isenabled = GL_TRUE;
+    vt_attrib_pointer[WES_ACOLOR1].size = size;
+    vt_attrib_pointer[WES_ACOLOR1].type = type;
+    vt_attrib_pointer[WES_ACOLOR1].stride = stride;
+    vt_attrib_pointer[WES_ACOLOR1].ptr = ptr;
     wes_gl->glVertexAttribPointer(WES_ACOLOR1, size, type, GL_FALSE, stride, ptr);
 }
 
 GLvoid
 glFogCoordPointer(GLenum type, GLsizei stride, const GLvoid *ptr)
 {
+    wes_vertbuffer_flush();
+    vt_attrib_pointer[WES_AFOGCOORD].isenabled = GL_TRUE;
+    vt_attrib_pointer[WES_AFOGCOORD].size = 1;
+    vt_attrib_pointer[WES_AFOGCOORD].type = type;
+    vt_attrib_pointer[WES_AFOGCOORD].stride = stride;
+    vt_attrib_pointer[WES_AFOGCOORD].ptr = ptr;
     wes_gl->glVertexAttribPointer(WES_AFOGCOORD, 1, type, GL_FALSE, stride, ptr);
 }
 
 GLvoid
 glEnableClientState(GLenum array)
 {
+    wes_vertbuffer_flush();
     switch(array)
     {
         case GL_VERTEX_ARRAY:
-            wes_gl->glEnableVertexAttribArray(WES_APOS); break;
+            wes_gl->glEnableVertexAttribArray(WES_APOS);
+            vt_attrib_pointer[WES_APOS].isenabled = GL_TRUE;
+            break;
         case GL_NORMAL_ARRAY:
-            wes_gl->glEnableVertexAttribArray(WES_ANORMAL); break;
+            wes_gl->glEnableVertexAttribArray(WES_ANORMAL);
+            vt_attrib_pointer[WES_ANORMAL].isenabled = GL_TRUE;
+            break;
         case GL_COLOR_ARRAY:
-            wes_gl->glEnableVertexAttribArray(WES_ACOLOR0); break;
-        /*case GL_SECONDARY_COLOR_ARRAY:
-            wes_gl->glEnableVertexAttribArray(WES_ACOLOR1); break;
+            wes_gl->glEnableVertexAttribArray(WES_ACOLOR0);
+            vt_attrib_pointer[WES_ACOLOR0].isenabled = GL_TRUE;
+            break;
+        case GL_SECONDARY_COLOR_ARRAY:
+            wes_gl->glEnableVertexAttribArray(WES_ACOLOR1);
+            vt_attrib_pointer[WES_ACOLOR1].isenabled = GL_TRUE;
+            break;
         case GL_FOG_COORD_ARRAY:
-            wes_gl->glEnableVertexAttribArray(WES_AFOGCOORD); break;*/
+            wes_gl->glEnableVertexAttribArray(WES_AFOGCOORD);
+            vt_attrib_pointer[WES_AFOGCOORD].isenabled = GL_TRUE;
+            break;
         case GL_TEXTURE_COORD_ARRAY:
-            wes_gl->glEnableVertexAttribArray(WES_ATEXCOORD0 + vt_clienttex); break;
+            wes_gl->glEnableVertexAttribArray(WES_ATEXCOORD0 + vt_clienttex);
+            vt_attrib_pointer[WES_ATEXCOORD0 + vt_clienttex].isenabled = GL_TRUE;
+            break;
         default:
             PRINT_ERROR("EnableClientState Unhandled enum");
     }
@@ -476,20 +550,34 @@ glEnableClientState(GLenum array)
 GLvoid
 glDisableClientState(GLenum array)
 {
+    wes_vertbuffer_flush();
+
     switch(array)
     {
         case GL_VERTEX_ARRAY:
-            wes_gl->glDisableVertexAttribArray(WES_APOS); break;
+            wes_gl->glDisableVertexAttribArray(WES_APOS);
+            vt_attrib_pointer[WES_APOS].isenabled = GL_FALSE;
+            break;
         case GL_NORMAL_ARRAY:
-            wes_gl->glDisableVertexAttribArray(WES_ANORMAL); break;
+            wes_gl->glDisableVertexAttribArray(WES_ANORMAL);
+            vt_attrib_pointer[WES_ANORMAL].isenabled = GL_FALSE;
+            break;
         case GL_COLOR_ARRAY:
-            wes_gl->glDisableVertexAttribArray(WES_ACOLOR0); break;
-        /*case GL_SECONDARY_COLOR_ARRAY:
-            wes_gl->glDisableVertexAttribArray(WES_ACOLOR1); break;
+            wes_gl->glDisableVertexAttribArray(WES_ACOLOR0);
+            vt_attrib_pointer[WES_ACOLOR0].isenabled = GL_FALSE;
+            break;
+        case GL_SECONDARY_COLOR_ARRAY:
+            wes_gl->glDisableVertexAttribArray(WES_ACOLOR1);
+            vt_attrib_pointer[WES_ACOLOR1].isenabled = GL_FALSE;
+            break;
         case GL_FOG_COORD_ARRAY:
-            wes_gl->glDisableVertexAttribArray(WES_AFOGCOORD); break;*/
+            wes_gl->glDisableVertexAttribArray(WES_AFOGCOORD);
+            vt_attrib_pointer[WES_AFOGCOORD].isenabled = GL_FALSE;
+            break;
         case GL_TEXTURE_COORD_ARRAY:
-            wes_gl->glDisableVertexAttribArray(WES_ATEXCOORD0 + vt_clienttex); break;
+            wes_gl->glDisableVertexAttribArray(WES_ATEXCOORD0 + vt_clienttex);
+            vt_attrib_pointer[WES_ATEXCOORD0 + vt_clienttex].isenabled = GL_FALSE;
+            break;
         default:
             PRINT_ERROR("DisableClientState Unhandled enum");
     }
@@ -649,5 +737,15 @@ glInterleavedArrays(GLenum format, GLsizei stride, const GLvoid *pointer)
 GLvoid
 glClientActiveTexture(GLenum texture)
 {
+    wes_vertbuffer_flush();
     vt_clienttex = texture - GL_TEXTURE0;
 }
+
+GLvoid
+glDrawArrays(GLenum mode, GLint off, GLint num)
+{
+    wes_vertbuffer_flush();
+    wes_state_update();
+    wes_gl->glDrawArrays(mode, off, num);
+}
+

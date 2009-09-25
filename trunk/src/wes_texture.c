@@ -61,20 +61,20 @@ GLvoid
 glTexImage2D(GLenum target, GLint level, GLenum internalFormat, GLsizei width, GLsizei height,
            GLint border, GLenum format, GLenum type, const GLvoid *pixels)
 {
-    GLvoid* data = pixels;
+    GLvoid* data = (GLvoid*) pixels;
 
     /* conversion routines */
     if (format == GL_BGR){
-        data = malloc(width * height * 3);
+        data = (GLvoid*) malloc(width * height * 3);
         wes_convert_BGR2RGB((GLubyte*) pixels, (GLubyte*) data, width * height * 3);
         format = GL_RGB;
     } else if (format == GL_BGRA){
-        data = malloc(width * height * 4);
+        data = (GLvoid*) malloc(width * height * 4);
         wes_convert_BGRA2RGBA((GLubyte*) pixels, (GLubyte*) data, width * height * 4);
         format = GL_RGBA;
     } else if (format == GL_INTENSITY){
-        data = malloc(width * height * 2);
-        wes_convert_I2LA(pixels, data, width * height * 2);
+        data = (GLvoid*) malloc(width * height * 2);
+        wes_convert_I2LA((GLubyte*) pixels, (GLubyte*) data, width * height * 2);
         format = GL_LUMINANCE_ALPHA;
     }
 
@@ -122,14 +122,14 @@ gluBuild2DMipmaps(GLenum target, GLint components, GLsizei width, GLsizei height
 
     glTexImage2D(target, 0, format, width, height, 0, format, type, pixels);
 
-    data = malloc(width * height * byteperpixel);
+    data = (char*) malloc(width * height * byteperpixel);
     memcpy(data, pixels, width * height * byteperpixel);
     while(width != 1 || height != 1){
         width  >>= 1;
         height >>= 1;
         if (width == 0) width = 1;
         if (height == 0) height = 1;
-        newdata = malloc(width * height * byteperpixel);
+        newdata = (char*) malloc(width * height * byteperpixel);
         wes_halveimage(width, height, byteperpixel, data, newdata);
         glTexImage2D(target, i++, format, width, height, 0, format, type, newdata);
         free(data);

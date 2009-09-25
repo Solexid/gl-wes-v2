@@ -154,10 +154,8 @@ struct uniforms_s {
         uint_t      ColorControl;
     } uLightModel;
 
-    struct {
-        uvec4_t         EnvColor;
-        usampler2d_t    Unit;
-    } uTexture[WES_MULTITEX_NUM];
+    usampler2d_t    uTexUnit[WES_MULTITEX_NUM];
+    uvec4_t         uTexEnvColor[WES_MULTITEX_NUM];
 
     ufloat_t    uRescaleFactor;
 

@@ -18,7 +18,6 @@ License along with this library; if not, write to the Free
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -30,8 +29,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if defined(_WIN32)
     #include <windows.h>
     #define dlopen(A, B)    LoadLibrary(A)
-    #define dlsym(A, B)     GetProcAddress(A, B)
-    #define dlclose(A)      FreeLibrary(A)
+    #define dlsym(A, B)     GetProcAddress((HINSTANCE__*) A, B)
+    #define dlclose(A)      FreeLibrary((HINSTANCE__*) A)
 #elif defined(POSIX)
     #include <dlfcn.h>
 #endif
@@ -193,7 +192,7 @@ wes_init(const char *gles2)
     int i;
     void** ptr;
 
-    wes_gl = malloc(sizeof(gles2lib_t));
+    wes_gl = (gles2lib_t*) malloc(sizeof(gles2lib_t));
     if (wes_gl == NULL)
     {
         PRINT_ERROR("Could not load Allocate mem: %s", gles2);
@@ -208,7 +207,7 @@ wes_init(const char *gles2)
     ptr = (void**) wes_gl;
     for(i = 0; i != WES_OGLESV2_FUNCTIONCOUNT+1; i++)
     {
-        void* pfunc = dlsym(wes_libhandle, glfuncnames[i]);
+        void* pfunc = (void*) dlsym(wes_libhandle, glfuncnames[i]);
         if (pfunc == NULL)
         {
             PRINT_ERROR("Could not find %s in %s", glfuncnames[i], gles2
@@ -219,8 +218,8 @@ wes_init(const char *gles2)
 
     wes_shader_init();
     wes_matrix_init();
-    wes_state_init();
     wes_begin_init();
+    wes_state_init();
 }
 
 GLvoid
@@ -235,8 +234,9 @@ wes_destroy()
 GLvoid
 glMultiDrawArrays(GLenum mode, GLint *first, GLsizei *count, GLsizei primcount)
 {
+    wes_vertbuffer_flush();
     GLuint i;
-    for (i = 0; i < primcount; i++) {
+    for (i = 0; i < (unsigned)primcount; i++) {
         if (count[i] > 0){
             wes_gl->glDrawArrays(mode, first[i], count[i]);
         }
@@ -246,8 +246,10 @@ glMultiDrawArrays(GLenum mode, GLint *first, GLsizei *count, GLsizei primcount)
 GLvoid
 glMultiDrawElements(GLenum mode, GLsizei *count, GLenum type, GLvoid **indices, GLsizei primcount)
 {
+    wes_vertbuffer_flush();
+
     GLuint i;
-    for (i = 0; i < primcount; i++) {
+    for (i = 0; i < (unsigned)primcount; i++) {
         if (count[i] > 0){
             wes_gl->glDrawElements(mode, count[i], type, indices[i]);
         }
