@@ -27,6 +27,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define GL_COLOR_ARRAY                          0x8076
 #define GL_INDEX_ARRAY                          0x8077
 #define GL_TEXTURE_COORD_ARRAY                  0x8078
+#define GL_SECONDARY_COLOR_ARRAY                0x8079
+#define GL_FOG_COORD_ARRAY                      0x807A
+
 #define GL_V2F                                  0x2A20
 #define GL_V3F                                  0x2A21
 #define GL_C4UB_V2F                             0x2A22
@@ -420,6 +423,7 @@ typedef int             GLsizeiptr;
 #define GL_ALPHA                          0x1906
 #define GL_RGB                            0x1907
 #define GL_RGBA                           0x1908
+#define GL_RGBA8                          GL_RGBA
 #define GL_LUMINANCE                      0x1909
 #define GL_LUMINANCE_ALPHA                0x190A
 
@@ -428,6 +432,7 @@ typedef int             GLsizeiptr;
 #define GL_UNSIGNED_SHORT_4_4_4_4         0x8033
 #define GL_UNSIGNED_SHORT_5_5_5_1         0x8034
 #define GL_UNSIGNED_SHORT_5_6_5           0x8363
+
 
 /* Shaders */
 #define GL_FRAGMENT_SHADER                  0x8B30

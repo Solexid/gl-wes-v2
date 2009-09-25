@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "wes.h"
 #include "wes_matrix.h"
 #include "wes_state.h"
+#include "wes_begin.h"
+
 
 /* global variables */
 matrix4_t   *m_current;
@@ -570,6 +572,8 @@ wes_matrix_update()
 GLvoid
 glUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, GLfloat* value)
 {
+    wes_vertbuffer_flush();
+
     if (transpose){
         GLfloat tmp[4];
         wes_transpose2(value, tmp);
@@ -582,6 +586,8 @@ glUniformMatrix2fv(GLint location, GLsizei count, GLboolean transpose, GLfloat* 
 GLvoid
 glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, GLfloat* value)
 {
+    wes_vertbuffer_flush();
+
     if (transpose){
         GLfloat tmp[9];
         wes_transpose3(value, tmp);
@@ -594,6 +600,8 @@ glUniformMatrix3fv(GLint location, GLsizei count, GLboolean transpose, GLfloat* 
 GLvoid
 glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, GLfloat* value)
 {
+    wes_vertbuffer_flush();
+
     if (transpose){
         GLfloat tmp[16];
         wes_transpose4(value, tmp);
@@ -606,6 +614,7 @@ glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, GLfloat* 
 GLvoid
 glMatrixMode(GLenum mode)
 {
+    wes_vertbuffer_flush();
     m_mode = mode;
     switch(m_mode)
     {
@@ -620,6 +629,8 @@ glMatrixMode(GLenum mode)
 GLvoid
 glLoadMatrixf(GLfloat *m)
 {
+    wes_vertbuffer_flush();
+
     m_modelview_mod |= (m_mode == GL_MODELVIEW);
     m_projection_mod |= (m_mode == GL_PROJECTION);
     wes_assign(m, m_current);
@@ -629,6 +640,8 @@ glLoadMatrixf(GLfloat *m)
 GLvoid
 glLoadMatrixTransposef(GLfloat *m)
 {
+    wes_vertbuffer_flush();
+
     m_modelview_mod |= (m_mode == GL_MODELVIEW);
     m_projection_mod |= (m_mode == GL_PROJECTION);
     wes_transpose4(m, m_current->data);
@@ -638,6 +651,8 @@ glLoadMatrixTransposef(GLfloat *m)
 GLvoid
 glMultMatrixf(GLfloat *m)
 {
+    wes_vertbuffer_flush();
+
     matrix4_t   mat_m[1], mat_r[1];
 
     m_modelview_mod |= (m_mode == GL_MODELVIEW);
@@ -652,6 +667,8 @@ glMultMatrixf(GLfloat *m)
 GLvoid
 glMultMatrixTransposef(GLfloat *m)
 {
+    wes_vertbuffer_flush();
+
     GLfloat tmp[16];
     wes_transpose4(m, tmp);
     glMultMatrixf(tmp);
@@ -661,6 +678,8 @@ glMultMatrixTransposef(GLfloat *m)
 GLvoid
 glLoadIdentity()
 {
+    wes_vertbuffer_flush();
+
     m_modelview_mod |= (m_mode == GL_MODELVIEW);
     m_projection_mod |= (m_mode == GL_PROJECTION);
     wes_identity4(m_current);
@@ -670,6 +689,8 @@ glLoadIdentity()
 GLvoid
 glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
 {
+    wes_vertbuffer_flush();
+
     m_modelview_mod |= (m_mode == GL_MODELVIEW);
     m_projection_mod |= (m_mode == GL_PROJECTION);
     if (x == 0.0f && y == 0.0f && z == 0.0f){
@@ -697,6 +718,8 @@ glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
 GLvoid
 glTranslatef(GLfloat x, GLfloat y, GLfloat z)
 {
+    wes_vertbuffer_flush();
+
     m_modelview_mod |= (m_mode == GL_MODELVIEW);
     m_projection_mod |= (m_mode == GL_PROJECTION);
     if (m_current->flags == WES_M_IDENTITY){
@@ -729,6 +752,8 @@ glTranslatef(GLfloat x, GLfloat y, GLfloat z)
 GLvoid
 glScalef(GLfloat x, GLfloat y, GLfloat z)
 {
+    wes_vertbuffer_flush();
+
     m_modelview_mod |= (m_mode == GL_MODELVIEW);
     m_projection_mod |= (m_mode == GL_PROJECTION);
     if (m_current->flags == WES_M_IDENTITY || m_current->flags == (WES_M_IDENTITY | WES_M_TRANSLATED)){
@@ -747,6 +772,8 @@ glScalef(GLfloat x, GLfloat y, GLfloat z)
 GLvoid
 glFrustrumf(float l, float r, float b, float t, float n, float f)
 {
+    wes_vertbuffer_flush();
+
     GLfloat m0, m5, m8, m9, m10, m14;
     GLfloat mc8, mc9, mc10, mc11;
 
@@ -808,6 +835,8 @@ glFrustrumf(float l, float r, float b, float t, float n, float f)
 GLvoid
 glOrthof(float l, float r, float b, float t, float n, float f)
 {
+    wes_vertbuffer_flush();
+
     GLfloat m0  = 2 / (r - l);
     GLfloat m5  = 2 / (t - b);
     GLfloat m10 = - 2 / (f - n);
@@ -842,7 +871,9 @@ glOrthof(float l, float r, float b, float t, float n, float f)
 GLvoid
 glPushMatrix()
 {
-    int i;
+    wes_vertbuffer_flush();
+
+    unsigned int i;
     m_modelview_mod |= (m_mode == GL_MODELVIEW);
     m_projection_mod |= (m_mode == GL_PROJECTION);
     switch(m_mode)
@@ -851,7 +882,7 @@ glPushMatrix()
             for(i = 0; i < m_modelview_num; i++){
                 m_modelview[i + 1] = m_modelview[i];
             }
-            if (m_modelview_num < WES_MODELVIEW_NUM - 1){
+            if (m_modelview_num < (WES_MODELVIEW_NUM - 1)){
                 m_modelview_num++;
             }
             break;
@@ -860,7 +891,7 @@ glPushMatrix()
             for(i = 0; i < m_projection_num; i++){
                 m_projection[i + 1] = m_projection[i];
             }
-            if (m_projection_num < WES_PROJECTION_NUM - 1){
+            if (m_projection_num < (WES_PROJECTION_NUM - 1)){
                 m_projection_num++;
             }
             break;
@@ -869,7 +900,7 @@ glPushMatrix()
             for(i = 0; i < m_texture_num; i++){
                 m_texture[i + 1] = m_texture[i];
             }
-            if (m_texture_num < WES_TEXTURE_NUM - 1){
+            if (m_texture_num < (WES_TEXTURE_NUM - 1)){
                 m_texture_num++;
             }
             break;
@@ -878,7 +909,7 @@ glPushMatrix()
             for(i = 0; i < m_color_num; i++){
                 m_color[i + 1] = m_color[i];
             }
-            if (m_color_num < WES_TEXTURE_NUM - 1){
+            if (m_color_num < (WES_TEXTURE_NUM - 1)){
                 m_color_num++;
             }
             break;
@@ -891,7 +922,9 @@ glPushMatrix()
 GLvoid
 glPopMatrix()
 {
-    int i;
+    wes_vertbuffer_flush();
+
+    unsigned int i;
     m_modelview_mod |= (m_mode == GL_MODELVIEW);
     m_projection_mod |= (m_mode == GL_PROJECTION);
     switch(m_mode)
@@ -942,6 +975,8 @@ glPopMatrix()
 GLvoid
 gluOrtho2D(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top)
 {
+    wes_vertbuffer_flush();
+
     glOrthof(left, right, bottom, top, -1, 1);
 }
 
@@ -953,6 +988,7 @@ gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat znear, GLfloat zfar)
     GLfloat sine, cot, dz, idz;
     GLfloat m0, m10, m14;
     GLfloat tmp[4];
+    wes_vertbuffer_flush();
 
     m_modelview_mod |= (m_mode == GL_MODELVIEW);
     m_projection_mod |= (m_mode == GL_PROJECTION);
@@ -1008,6 +1044,7 @@ gluLookAt(GLfloat eyex, GLfloat eyey, GLfloat eyez,
 {
     GLfloat forward[3], side[3], up[3];
     GLfloat tmp[12];
+    wes_vertbuffer_flush();
 
     m_modelview_mod |= (m_mode == GL_MODELVIEW);
     m_projection_mod |= (m_mode == GL_PROJECTION);

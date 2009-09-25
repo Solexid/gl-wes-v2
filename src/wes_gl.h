@@ -23,8 +23,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "wes.h"
 #include "wes_gl_defines.h"
+#include "wes_gl_arb.h"
 
 /* pass throughs */
+
+extern GLvoid wes_vertbuffer_flush();
+
 //#define glActiveTexture             wes_gl->glActiveTexture
 #define glAttachShader              wes_gl->glAttachShader
 #define glBindAttribLocation		wes_gl->glBindAttribLocation
@@ -66,7 +70,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define glDepthRangef		       	wes_gl->glDepthRangef
 //#define glDisable			        wes_gl->glDisable
 #define glDisableVertexAttribArray	wes_gl->glDisableVertexAttribArray
-#define glDrawArrays			    wes_gl->glDrawArrays
 #define glDrawElements			    wes_gl->glDrawElements
 //#define glEnable			        wes_gl->glEnable
 #define glEnableVertexAttribArray	wes_gl->glEnableVertexAttribArray
@@ -174,8 +177,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 extern GLvoid   glEnable(GLenum e);
 extern GLvoid   glDisable(GLenum e);
 
+extern GLvoid   glDrawArrays(GLenum mode, GLint off, GLint num);
 
-/*  Begin / End Paradigm            */
+
+/*  Begin / End Paradigm
+ */
 extern GLvoid   glBegin(GLenum mode);
 extern GLvoid   glEnd();
 
@@ -203,10 +209,12 @@ extern GLvoid   glMultiTexCoord2f(GLenum tex, GLfloat s, GLfloat t);
 extern GLvoid   glMultiTexCoord1f(GLenum tex, GLfloat s);
 extern GLvoid   glNormal3f(GLfloat x, GLfloat y, GLfloat z);
 extern GLvoid   glFogCoordf(GLfloat f);
+#define         glColor4fv(v)              glColor4f(((GLfloat*)v)[0], ((GLfloat*)v)[1], ((GLfloat*)v)[2], ((GLfloat*)v)[3])
 extern GLvoid   glColor4f(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
 extern GLvoid   glColor4ub(GLubyte r, GLubyte g, GLubyte b, GLubyte a);
 extern GLvoid   glColor3f(GLfloat r, GLfloat g, GLfloat b);
 extern GLvoid   glColor3ub(GLubyte r, GLubyte g, GLubyte b);
+#define         glSecondaryColor3fv(v)     glSecondaryColor3f(((GLfloat*)v)[0], ((GLfloat*)v)[1], ((GLfloat*)v)[2])
 extern GLvoid   glSecondaryColor3f(GLfloat r, GLfloat g, GLfloat b);
 
 /* Vertex Arrays*/
@@ -224,7 +232,7 @@ extern GLvoid   glMultiDrawElements(GLenum mode, GLsizei *count, GLenum type, GL
 extern GLvoid   glInterleavedArrays(GLenum format, GLsizei stride, const GLvoid *pointer);
 
 /*  Coordinate Transformations  */
-#define         glDepthRange(n, f)          glDepthRange((GLfloat)n, (GLfloat)f)
+#define         glDepthRange(n, f)          glDepthRangef((GLfloat)n, (GLfloat)f)
 extern GLvoid   glMatrixMode(GLenum mode);
 extern GLvoid   glLoadMatrixf(GLfloat *m);
 extern GLvoid   glLoadMatrixTransposef(GLfloat *m);

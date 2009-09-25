@@ -26,7 +26,60 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "wes_state.h"
 #include "wes_shader.h"
 #include "wes_matrix.h"
+#include "wes_begin.h"
+#include "wes_gl_arb.h"
 
+#ifdef LOGSTATE
+#define UpdateUniform1i(A)                                          \
+    if (u_uniform.A.mod || sh_program_mod) {                                            \
+        PRINT_ERROR(#A" = %i \n", u_uniform.A.i);                       \
+        u_uniform.A.mod = GL_FALSE;                                   \
+        wes_gl->glUniform1i(sh_program->uloc.A, u_uniform.A.i);            \
+    };
+
+#define UpdateUniform2i(A)                                          \
+    if (u_uniform.A.mod || sh_program_mod) {                                            \
+        PRINT_ERROR(#A" = %i, %i \n", u_uniform.A.v[0], u_uniform.A.v[1]);  \
+        u_uniform.A.mod = GL_FALSE;                                   \
+        wes_gl->glUniform2iv(sh_program->uloc.A, 1, u_uniform.A.v);        \
+    };
+#define UpdateUniform3i(A)                                          \
+    if (u_uniform.A.mod || sh_program_mod) {                                            \
+        PRINT_ERROR(#A"  = %i, %i, %i \n", u_uniform.A.v[0], u_uniform.A.v[1], u_uniform.A.v[2]);  \
+        u_uniform.A.mod = GL_FALSE;                                   \
+        wes_gl->glUniform3iv(sh_program->uloc.A, 1, u_uniform.A.v);        \
+    };
+#define UpdateUniform4i(A)                                          \
+    if (u_uniform.A.mod || sh_program_mod) {                                            \
+        PRINT_ERROR(#A" = %i, %i, %i, %i \n", u_uniform.A.v[0], u_uniform.A.v[1], u_uniform.A.v[2], u_uniform.A.v[3]);  \
+        u_uniform.A.mod = GL_FALSE;                                   \
+        wes_gl->glUniform4iv(sh_program->uloc.A, 1, u_uniform.A.v);        \
+    };
+#define UpdateUniform1f(A)                                          \
+    if (u_uniform.A.mod || sh_program_mod) {                                            \
+        PRINT_ERROR(#A" = %f \n", u_uniform.A.f);                       \
+        u_uniform.A.mod = GL_FALSE;                                   \
+        wes_gl->glUniform1f(sh_program->uloc.A, u_uniform.A.f);            \
+    };
+#define UpdateUniform2f(A)                                          \
+    if (u_uniform.A.mod || sh_program_mod) {                                            \
+        PRINT_ERROR(#A" = %f, %f \n", u_uniform.A.v[0],  u_uniform.A.v[1]);                       \
+        u_uniform.A.mod = GL_FALSE;                                   \
+        wes_gl->glUniform2fv(sh_program->uloc.A, 1, u_uniform.A.v);        \
+    };
+#define UpdateUniform3f(A)                                          \
+    if (u_uniform.A.mod || sh_program_mod) {                          \
+        PRINT_ERROR(#A"= %f, %f, %f \n", u_uniform.A.v[0],  u_uniform.A.v[1], u_uniform.A.v[2]);                       \
+        u_uniform.A.mod = GL_FALSE;                                   \
+        wes_gl->glUniform3fv(sh_program->uloc.A, 1, u_uniform.A.v);   \
+    };
+#define UpdateUniform4f(A)                                          \
+    if (u_uniform.A.mod || sh_program_mod) {                          \
+        PRINT_ERROR(#A" = %f, %f, %f, %f \n", u_uniform.A.v[0],  u_uniform.A.v[1], u_uniform.A.v[2], u_uniform.A.v[3]);                       \
+        u_uniform.A.mod = GL_FALSE;                                   \
+        wes_gl->glUniform4fv(sh_program->uloc.A, 1, u_uniform.A.v);   \
+    };
+#else
 #define UpdateUniform1i(A)                                          \
     if (u_uniform.A.mod || sh_program_mod) {                                            \
         u_uniform.A.mod = GL_FALSE;                                   \
@@ -67,6 +120,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
         u_uniform.A.mod = GL_FALSE;                                   \
         wes_gl->glUniform4fv(sh_program->uloc.A, 1, u_uniform.A.v);   \
     };
+#endif
 
 #define SetUniform1i(A, P)                                          \
     u_uniform.A.mod = GL_TRUE; u_uniform.A.i = P
@@ -120,10 +174,10 @@ progstate_t     u_progstate;
 GLvoid
 wes_state_update()
 {
+
     int i;
 
     wes_choose_program(&u_progstate);
-    wes_gl->glUseProgram(sh_program->prog);
 
     UpdateUniform1i(uEnableRescaleNormal);
     UpdateUniform1i(uEnableNormalize);
@@ -148,7 +202,8 @@ wes_state_update()
     }
     for(i = 0; i < WES_MULTITEX_NUM; i++){
         UpdateUniform4i(uEnableTextureGen[i]);
-        UpdateUniform4f(uTexture[i].EnvColor);
+        UpdateUniform1i(uTexUnit[i]);
+        UpdateUniform4f(uTexEnvColor[i]);
     }
     UpdateUniform1f(uRescaleFactor);
 
@@ -187,7 +242,7 @@ wes_state_update()
 
 GLvoid wes_state_init()
 {
-    int i, j;
+    int i;
 
     u_activetex = 0;
     SetUniform1i(uEnableRescaleNormal, 0);
@@ -240,8 +295,8 @@ GLvoid wes_state_init()
     SetUniform4f(uFogColor, 0.0, 0.0, 0.0, 0.0);
 
     for(i = 0; i < WES_MULTITEX_NUM; i++){
-        SetUniform1i(uTexture[i].Unit, i);
-        SetUniform4f(uTexture[i].EnvColor, 0.0f, 0.0f, 0.0f, 0.0f);
+        SetUniform1i(uTexUnit[i], i);
+        SetUniform4f(uTexEnvColor[i], 0.0f, 0.0f, 0.0f, 0.0f);
     }
     SetUniform1f(uAlphaRef, 0.0);
 
@@ -250,20 +305,75 @@ GLvoid wes_state_init()
     u_progstate.uEnableClipPlane = 0;
     u_progstate.uAlphaFunc = 8;
     for(i = 0; i < WES_MULTITEX_NUM; i++){
-        u_progstate.uTexture[i].Mode = 0;
-        u_progstate.uTexture[i].RGBCombine = 0;
-        u_progstate.uTexture[i].AlphaCombine = 0;
-        for(j = 0; j < 3; j++){
-            u_progstate.uTexture[i].Arg[j].RGBSrc = 0;
-            u_progstate.uTexture[i].Arg[j].AlphaSrc = 0;
-            u_progstate.uTexture[i].Arg[j].RGBOp = 0;
-            u_progstate.uTexture[i].Arg[j].AlphaOp = 0;
-        }
+        u_progstate.uTexture[i].Enable = 0;
+        u_progstate.uTexture[i].Mode = WES_FUNC_MODULATE;
+        u_progstate.uTexture[i].RGBCombine = WES_FUNC_MODULATE;
+        u_progstate.uTexture[i].AlphaCombine = WES_FUNC_MODULATE;
+        u_progstate.uTexture[i].Arg[0].RGBSrc = WES_SRC_TEXTURE;
+        u_progstate.uTexture[i].Arg[1].RGBSrc = WES_SRC_PREVIOUS;
+        u_progstate.uTexture[i].Arg[2].RGBSrc = WES_SRC_CONSTANT;
+        u_progstate.uTexture[i].Arg[0].AlphaSrc = WES_SRC_TEXTURE;
+        u_progstate.uTexture[i].Arg[1].AlphaSrc = WES_SRC_PREVIOUS;
+        u_progstate.uTexture[i].Arg[2].AlphaSrc = WES_SRC_CONSTANT;
+        u_progstate.uTexture[i].Arg[0].RGBOp = WES_OP_COLOR;
+        u_progstate.uTexture[i].Arg[1].RGBOp = WES_OP_COLOR;
+        u_progstate.uTexture[i].Arg[2].RGBOp = WES_OP_ALPHA;
+        u_progstate.uTexture[i].Arg[0].AlphaOp = WES_OP_ALPHA;
+        u_progstate.uTexture[i].Arg[1].AlphaOp = WES_OP_ALPHA;
+        u_progstate.uTexture[i].Arg[2].AlphaOp = WES_OP_ALPHA;
     }
-    u_progstate.uTexture[0].Mode = 2;
-    wes_state_update();
+    u_progstate.uTexture[0].Enable = 1;
+
+    //wes_state_update();
 }
 
+const char*
+wes_name_envsrc(GLint param)
+{
+    switch(param)
+    {
+        case GL_PREVIOUS:       return "WES_SRC_PREVIOUS";
+        case GL_CONSTANT:       return "WES_SRC_CONSTANT";
+        case GL_PRIMARY_COLOR:  return "WES_SRC_PRIMARY_COLOR";
+        case GL_TEXTURE:        return "WES_SRC_TEXTURE";
+
+        /* Crossbar Extensions */
+        case GL_TEXTURE0:        return "WES_SRC_TEXTURE0";
+        case GL_TEXTURE1:        return "WES_SRC_TEXTURE1";
+        case GL_TEXTURE2:        return "WES_SRC_TEXTURE2";
+        case GL_TEXTURE3:        return "WES_SRC_TEXTURE3";
+
+        /* ATI Extensions */
+        case GL_ONE:            return "WES_SRC_ONE";
+        case GL_ZERO:           return "WES_SRC_ZERO";
+    }
+    return "ERROR";
+}
+
+const char*
+wes_name_envfunc(GLint param)
+{
+    switch(param)
+    {
+        case GL_REPLACE:        return "WES_FUNC_REPLACE";
+        case GL_MODULATE:       return "WES_FUNC_MODULATE";
+        case GL_ADD:            return "WES_FUNC_ADD";
+        case GL_DECAL:          return "WES_FUNC_DECAL";
+        case GL_BLEND:          return "WES_FUNC_BLEND";
+        case GL_COMBINE:        return "WES_FUNC_COMBINE";
+        case GL_ADD_SIGNED:     return "WES_FUNC_ADD_SIGNED";
+        case GL_INTERPOLATE:    return "WES_FUNC_INTERPOLATE";
+        case GL_SUBTRACT:       return "WES_FUNC_SUBTRACT";
+        case GL_DOT3_RGB:       return "WES_FUNC_DOT3_RGB";
+        case GL_DOT3_RGBA:      return "WES_FUNC_DOT3_RGBA";
+
+        /* ATI Extensions */
+        case GL_MODULATE_ADD_ATI:           return "WES_FUNC_MODULATE_ADD";
+        case GL_MODULATE_SIGNED_ADD_ATI:    return "WES_FUNC_MODULATE_SIGNED_ADD";
+        case GL_MODULATE_SUBTRACT_ATI:      return "WES_FUNC_MODULATE_SUBTRACT";
+    }
+    return "ERROR";
+}
 
 GLint
 wes_index_envfunc(GLint param)
@@ -281,6 +391,12 @@ wes_index_envfunc(GLint param)
         case GL_SUBTRACT:       return WES_FUNC_SUBTRACT;
         case GL_DOT3_RGB:       return WES_FUNC_DOT3_RGB;
         case GL_DOT3_RGBA:      return WES_FUNC_DOT3_RGBA;
+
+        /* ATI Extensions */
+        case GL_MODULATE_ADD_ATI:           return WES_FUNC_MODULATE_ADD;
+        case GL_MODULATE_SIGNED_ADD_ATI:    return WES_FUNC_MODULATE_SIGNED_ADD;
+        case GL_MODULATE_SUBTRACT_ATI:      return WES_FUNC_MODULATE_SUBTRACT;
+
         default:                return 0;
     }
 
@@ -295,6 +411,16 @@ wes_index_envsrc(GLint param)
         case GL_CONSTANT:       return WES_SRC_CONSTANT;
         case GL_PRIMARY_COLOR:  return WES_SRC_PRIMARY_COLOR;
         case GL_TEXTURE:        return WES_SRC_TEXTURE;
+
+        /* Crossbar Extensions */
+        case GL_TEXTURE0:        return WES_SRC_TEXTURE0;
+        case GL_TEXTURE1:        return WES_SRC_TEXTURE1;
+        case GL_TEXTURE2:        return WES_SRC_TEXTURE2;
+        case GL_TEXTURE3:        return WES_SRC_TEXTURE3;
+
+        /* ATI Extensions */
+        case GL_ONE:            return WES_SRC_ONE;
+        case GL_ZERO:           return WES_SRC_ZERO;
         default:                return 0;
     }
 
@@ -317,6 +443,8 @@ wes_index_envop(GLint param)
 GLvoid
 wes_setstate(GLenum e, GLboolean b)
 {
+    wes_vertbuffer_flush();
+
     switch(e)
     {
         case GL_RESCALE_NORMAL:     SetUniform1i(uEnableRescaleNormal, b);   break;
@@ -356,12 +484,16 @@ wes_setstate(GLenum e, GLboolean b)
             u_progstate.uEnableAlphaTest = b;
             break;
 
+        case GL_TEXTURE_2D:
+            u_progstate.uTexture[u_activetex].Enable = b;
+            if (b)  wes_gl->glEnable(e);
+            else    wes_gl->glDisable(e);
+            break;
+
         default:
-            if (b){
-                wes_gl->glEnable(e);
-            } else {
-                wes_gl->glDisable(e);
-            }
+            if (b)  wes_gl->glEnable(e);
+            else    wes_gl->glDisable(e);
+
             break;
     }
 }
@@ -369,6 +501,8 @@ wes_setstate(GLenum e, GLboolean b)
 GLvoid
 glLightf(GLenum light, GLenum pname, GLfloat params)
 {
+    wes_vertbuffer_flush();
+
     GLuint ind = light - GL_LIGHT0;
     switch(pname){
         case GL_SPOT_EXPONENT:
@@ -389,6 +523,8 @@ glLightf(GLenum light, GLenum pname, GLfloat params)
 GLvoid
 glLightfv(GLenum light, GLenum pname, GLfloat *params)
 {
+    wes_vertbuffer_flush();
+
     GLuint ind = light - GL_LIGHT0;
     switch(pname)
     {
@@ -432,6 +568,8 @@ glLightfv(GLenum light, GLenum pname, GLfloat *params)
 GLvoid
 glMaterialf(GLenum face, GLenum pname, GLfloat params)
 {
+    wes_vertbuffer_flush();
+
     switch(pname)
     {
         case GL_SHININESS:
@@ -453,6 +591,8 @@ glMaterialf(GLenum face, GLenum pname, GLfloat params)
 GLvoid
 glMaterialfv(GLenum face, GLenum pname, GLfloat *params)
 {
+    wes_vertbuffer_flush();
+
     switch(pname)
     {
         case GL_AMBIENT:
@@ -534,6 +674,8 @@ glMaterialfv(GLenum face, GLenum pname, GLfloat *params)
 GLvoid
 glLightModelfv(GLenum pname, GLfloat* params)
 {
+    wes_vertbuffer_flush();
+
     switch(pname)
     {
         case GL_LIGHT_MODEL_AMBIENT:
@@ -544,6 +686,8 @@ glLightModelfv(GLenum pname, GLfloat* params)
 GLvoid
 glLightModeli(GLenum pname, GLint params)
 {
+    wes_vertbuffer_flush();
+
     switch(pname)
     {
         case GL_LIGHT_MODEL_TWO_SIDE:
@@ -558,6 +702,8 @@ glLightModeli(GLenum pname, GLint params)
 GLvoid
 glColorMaterial(GLenum face, GLenum mode)
 {
+    wes_vertbuffer_flush();
+
     GLint ind = (face == GL_FRONT) ? 0 : 1;
     if (mode == GL_AMBIENT){
         SetUniform1i(uMaterial[ind].ColorMaterial, 0);
@@ -587,6 +733,8 @@ glDisable(GLenum e)
 GLvoid
 glAlphaFunc(GLenum func, GLclampf ref)
 {
+    wes_vertbuffer_flush();
+
     if (func == GL_NEVER){
         u_progstate.uAlphaFunc = WES_ALPHA_NEVER;
     } else if (func == GL_LESS){
@@ -610,6 +758,8 @@ glAlphaFunc(GLenum func, GLclampf ref)
 GLvoid
 glFogi(GLenum pname, GLint param)
 {
+    wes_vertbuffer_flush();
+
     switch(pname)
     {
         case GL_FOG_MODE:
@@ -630,6 +780,8 @@ glFogi(GLenum pname, GLint param)
 GLvoid
 glFogf(GLenum pname, GLfloat param)
 {
+    wes_vertbuffer_flush();
+
     switch(pname)
     {
         case GL_FOG_DENSITY:
@@ -644,6 +796,8 @@ glFogf(GLenum pname, GLfloat param)
 GLvoid
 glFogfv(GLenum pname, GLfloat *param)
 {
+    wes_vertbuffer_flush();
+
     switch(pname)
     {
         case GL_FOG_COLOR:
@@ -654,6 +808,8 @@ glFogfv(GLenum pname, GLfloat *param)
 GLvoid
 glTexGeni(GLenum coord, GLenum pname, GLint param)
 {
+    wes_vertbuffer_flush();
+
     switch(pname)
     {
         case GL_TEXTURE_GEN_MODE:
@@ -665,6 +821,8 @@ glTexGeni(GLenum coord, GLenum pname, GLint param)
 GLvoid
 glTexGenfv(GLenum coord, GLenum pname, GLfloat* param)
 {
+    wes_vertbuffer_flush();
+
     switch(pname)
     {
         case GL_OBJECT_PLANE: break;
@@ -676,6 +834,8 @@ glTexGenfv(GLenum coord, GLenum pname, GLfloat* param)
 GLvoid
 glActiveTexture(GLenum texture)
 {
+    wes_vertbuffer_flush();
+
     u_activetex = texture - GL_TEXTURE0;
     wes_gl->glActiveTexture(texture);
 }
@@ -683,6 +843,8 @@ glActiveTexture(GLenum texture)
 GLvoid
 glTexEnvi(GLenum target, GLenum pname, GLint param)
 {
+    wes_vertbuffer_flush();
+
     if (target == GL_TEXTURE_ENV){
         switch(pname)
         {
@@ -754,11 +916,13 @@ glTexEnvi(GLenum target, GLenum pname, GLint param)
 GLvoid
 glTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
 {
+    wes_vertbuffer_flush();
+
     if (target == GL_TEXTURE_ENV){
         switch(pname)
         {
             case GL_TEXTURE_ENV_COLOR:
-                SetUniform4fv(uTexture[u_activetex].EnvColor, param);
+                SetUniform4fv(uTexEnvColor[u_activetex], param);
                 break;
         }
     }
@@ -767,6 +931,8 @@ glTexEnvfv(GLenum target, GLenum pname, GLfloat *param)
 GLvoid
 glClipPlane(GLenum plane, const GLdouble *equation)
 {
+    wes_vertbuffer_flush();
+
     GLint ind = plane - GL_CLIP_PLANE0;
     SetUniform4f(uClipPlane[ind], (GLfloat)equation[0], (GLfloat)equation[1],
                                   (GLfloat)equation[2], (GLfloat)equation[3]);
