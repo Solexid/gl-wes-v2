@@ -198,7 +198,7 @@ wes_init(const char *gles2)
         PRINT_ERROR("Could not load Allocate mem: %s", gles2);
     }
 
-    wes_libhandle = dlopen(gles2, RTLD_LAZY);
+    wes_libhandle = dlopen(gles2, RTLD_LAZY | RTLD_GLOBAL);
     if (wes_libhandle == NULL)
     {
         PRINT_ERROR("Could not load OpenGL ES 2 runtime library: %s", gles2);
